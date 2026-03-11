@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, Table2, Target, BotMessageSquare, FileText } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Table2, Target, BotMessageSquare, FileText, Landmark } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
