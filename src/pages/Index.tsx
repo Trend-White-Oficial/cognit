@@ -5,6 +5,7 @@ import { useFinanceStore } from "@/lib/finance-store";
 import Dashboard from "./Dashboard";
 import RegisterTransaction from "./RegisterTransaction";
 import Spreadsheet from "./Spreadsheet";
+import Planning from "./Planning";
 import Goals from "./Goals";
 import AiAssistant from "./AiAssistant";
 
@@ -25,6 +26,7 @@ const AppLayout = () => {
               <Route index element={<Dashboard balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} />} />
               <Route path="registrar" element={<RegisterTransaction onAdd={store.addTransaction} />} />
               <Route path="planilha" element={<Spreadsheet transactions={store.transactions} />} />
+              <Route path="planejamento" element={<Planning />} />
               <Route path="metas" element={<Goals goals={store.goals} />} />
               <Route path="assistente" element={<AiAssistant transactions={store.transactions} balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} />} />
             </Routes>
