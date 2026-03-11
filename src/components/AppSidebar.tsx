@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, Table2, Target, BotMessageSquare } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Table2, Target, BotMessageSquare, FileText } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -17,6 +17,7 @@ const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Registrar", url: "/registrar", icon: PlusCircle },
   { title: "Planilha", url: "/planilha", icon: Table2 },
+  { title: "Planejamento", url: "/planejamento", icon: FileText },
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Assistente IA", url: "/assistente", icon: BotMessageSquare },
 ];

@@ -31,6 +31,22 @@ export interface FinancialGoal {
   icon: string;
 }
 
+export type PlanningItemType = 'renda' | 'fixa' | 'divida';
+
+export interface PlanningItem {
+  id: string;
+  name: string;
+  value: number;
+  type: PlanningItemType;
+  paid: boolean;
+}
+
+export const PLANNING_TYPE_LABELS: Record<PlanningItemType, string> = {
+  renda: 'Receita',
+  fixa: 'Despesa Fixa',
+  divida: 'Dívida',
+};
+
 export const CATEGORY_LABELS: Record<Category, string> = {
   moradia: 'Moradia',
   alimentacao: 'Alimentação',
