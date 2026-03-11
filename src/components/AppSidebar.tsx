@@ -18,6 +18,7 @@ const items = [
   { title: "Registrar", url: "/registrar", icon: PlusCircle },
   { title: "Planilha", url: "/planilha", icon: Table2 },
   { title: "Planejamento", url: "/planejamento", icon: FileText },
+  { title: "Dívidas", url: "/dividas", icon: Landmark },
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Assistente IA", url: "/assistente", icon: BotMessageSquare },
 ];

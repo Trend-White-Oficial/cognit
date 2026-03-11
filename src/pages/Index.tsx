@@ -6,6 +6,7 @@ import Dashboard from "./Dashboard";
 import RegisterTransaction from "./RegisterTransaction";
 import Spreadsheet from "./Spreadsheet";
 import Planning from "./Planning";
+import Debts from "./Debts";
 import Goals from "./Goals";
 import AiAssistant from "./AiAssistant";
 
@@ -23,10 +24,11 @@ const AppLayout = () => {
           </header>
           <main className="flex-1 overflow-y-auto">
             <Routes>
-              <Route index element={<Dashboard balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} />} />
+              <Route index element={<Dashboard balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} totalDebts={store.totalDebts} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} />} />
               <Route path="registrar" element={<RegisterTransaction onAdd={store.addTransaction} />} />
               <Route path="planilha" element={<Spreadsheet transactions={store.transactions} />} />
               <Route path="planejamento" element={<Planning />} />
+              <Route path="dividas" element={<Debts debts={store.debts} onAdd={store.addDebt} onUpdateStatus={store.updateDebtStatus} />} />
               <Route path="metas" element={<Goals goals={store.goals} />} />
               <Route path="assistente" element={<AiAssistant transactions={store.transactions} balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} />} />
             </Routes>
