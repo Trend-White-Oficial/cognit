@@ -31,6 +31,22 @@ export interface FinancialGoal {
   icon: string;
 }
 
+export type DebtStatus = 'ativa' | 'negociacao' | 'quitada';
+
+export interface Debt {
+  id: string;
+  name: string;
+  totalValue: number;
+  date: string;
+  status: DebtStatus;
+}
+
+export const DEBT_STATUS_LABELS: Record<DebtStatus, string> = {
+  ativa: 'Ativa',
+  negociacao: 'Em negociação',
+  quitada: 'Quitada',
+};
+
 export type PlanningItemType = 'renda' | 'fixa' | 'divida';
 
 export interface PlanningItem {

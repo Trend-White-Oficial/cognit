@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Transaction, FinancialGoal, Category } from './types';
+import { Transaction, FinancialGoal, Category, Debt, DebtStatus } from './types';
 
 const SAMPLE_TRANSACTIONS: Transaction[] = [
   { id: '1', value: 5000, type: 'income', category: 'outros', date: '2026-03-01', description: 'Salário', paymentMethod: 'Transferência', recurring: true },
@@ -20,9 +20,16 @@ const SAMPLE_GOALS: FinancialGoal[] = [
   { id: '3', title: 'Notebook novo', targetAmount: 5000, currentAmount: 4100, icon: '💻' },
 ];
 
+const SAMPLE_DEBTS: Debt[] = [
+  { id: '1', name: 'Cartão Inter', totalValue: 760, date: '2026-03-15', status: 'ativa' },
+  { id: '2', name: 'InfinitePay', totalValue: 571.43, date: '2026-03-20', status: 'ativa' },
+  { id: '3', name: 'Cartório', totalValue: 337.23, date: '2026-03-25', status: 'negociacao' },
+];
+
 export function useFinanceStore() {
   const [transactions, setTransactions] = useState<Transaction[]>(SAMPLE_TRANSACTIONS);
   const [goals, setGoals] = useState<FinancialGoal[]>(SAMPLE_GOALS);
+  const [debts, setDebts] = useState<Debt[]>(SAMPLE_DEBTS);
 
   const addTransaction = useCallback((t: Omit<Transaction, 'id'>) => {
     setTransactions(prev => [{ ...t, id: crypto.randomUUID() }, ...prev]);
@@ -30,6 +37,7 @@ export function useFinanceStore() {
 
   const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.value, 0);
   const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.value, 0);
+  const totalDebts = debts.filter(d => d.status !== 'quitada').reduce((s, d) => s + d.totalValue, 0);
   const balance = totalIncome - totalExpenses;
 
   const expensesByCategory = transactions
@@ -47,5 +55,17 @@ export function useFinanceStore() {
     setGoals(prev => prev.map(g => g.id === id ? { ...g, currentAmount: Math.min(g.currentAmount + amount, g.targetAmount) } : g));
   }, []);
 
-  return { transactions, goals, addTransaction, addGoal, updateGoalProgress, totalIncome, totalExpenses, balance, expensesByCategory };
+  const addDebt = useCallback((d: Omit<Debt, 'id'>) => {
+    setDebts(prev => [...prev, { ...d, id: crypto.randomUUID() }]);
+  }, []);
+
+  const updateDebtStatus = useCallback((id: string, status: DebtStatus) => {
+    setDebts(prev => prev.map(d => d.id === id ? { ...d, status } : d));
+  }, []);
+
+  return {
+    transactions, goals, debts,
+    addTransaction, addGoal, updateGoalProgress, addDebt, updateDebtStatus,
+    totalIncome, totalExpenses, totalDebts, balance, expensesByCategory,
+  };
 }
