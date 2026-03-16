@@ -99,7 +99,7 @@ export default function TrialBalance({ transactions }: Props) {
           <p className="text-xl font-bold text-success">{fmt(totalIncome)}</p>
         </div>
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Saídas</p>
+          <p className="text-xs text-muted-foreground">Saídas Totais</p>
           <p className="text-xl font-bold text-destructive">{fmt(totalExpense)}</p>
         </div>
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
