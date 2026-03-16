@@ -101,7 +101,7 @@ export default function TaxGuide({ transactions, onUpdate }: Props) {
       <div className="gradient-card rounded-xl border border-border shadow-card overflow-hidden">
         <div className="p-4 border-b border-border">
           <h3 className="text-sm font-semibold text-foreground">Lançamentos relevantes para IR</h3>
-          <p className="text-xs text-muted-foreground">Receitas, saúde e educação — marque os que deseja incluir</p>
+          <p className="text-xs text-muted-foreground">Este lançamento pode ser relevante para declaração de Imposto de Renda. Marque para acompanhar.</p>
         </div>
         <Table>
           <TableHeader>
