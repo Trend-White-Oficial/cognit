@@ -1,6 +1,6 @@
 export type TransactionType = 'income' | 'expense' | 'transfer';
 
-export type PaymentMethod = 'pix' | 'debit' | 'credit' | 'boleto' | 'ted' | 'doc' | 'cash';
+export type PaymentMethod = 'pix' | 'debit' | 'credit' | 'boleto' | 'ted' | 'doc' | 'cash' | 'unknown';
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   pix: 'PIX',
@@ -10,6 +10,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   ted: 'TED',
   doc: 'DOC',
   cash: 'Dinheiro',
+  unknown: 'Desconhecido',
 };
 
 export type Category =
@@ -21,7 +22,43 @@ export type Category =
   | 'educacao'
   | 'investimentos'
   | 'assinaturas'
+  | 'telecomunicacoes'
+  | 'rendimentos'
+  | 'cartao_credito'
+  | 'transferencias_recebidas'
   | 'outros';
+
+export const CATEGORY_LABELS: Record<Category, string> = {
+  moradia: 'Moradia',
+  alimentacao: 'Alimentação',
+  transporte: 'Transporte',
+  lazer: 'Lazer',
+  saude: 'Saúde/Academia',
+  educacao: 'Educação',
+  investimentos: 'Investimentos',
+  assinaturas: 'Assinaturas',
+  telecomunicacoes: 'Telecomunicações',
+  rendimentos: 'Rendimentos',
+  cartao_credito: 'Cartão de Crédito',
+  transferencias_recebidas: 'Transferências Recebidas',
+  outros: 'Outros',
+};
+
+export const CATEGORY_COLORS: Record<Category, string> = {
+  moradia: '#D4AF37',
+  alimentacao: '#4ADE80',
+  transporte: '#60A5FA',
+  lazer: '#F472B6',
+  saude: '#FB923C',
+  educacao: '#A78BFA',
+  investimentos: '#34D399',
+  assinaturas: '#F87171',
+  telecomunicacoes: '#38BDF8',
+  rendimentos: '#22C55E',
+  cartao_credito: '#EF4444',
+  transferencias_recebidas: '#6EE7B7',
+  outros: '#94A3B8',
+};
 
 export interface Transaction {
   id: string;
@@ -129,30 +166,6 @@ export const PLANNING_TYPE_LABELS: Record<PlanningItemType, string> = {
   divida: 'Dívida',
 };
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  moradia: 'Moradia',
-  alimentacao: 'Alimentação',
-  transporte: 'Transporte',
-  lazer: 'Lazer',
-  saude: 'Saúde',
-  educacao: 'Educação',
-  investimentos: 'Investimentos',
-  assinaturas: 'Assinaturas',
-  outros: 'Outros',
-};
-
-export const CATEGORY_COLORS: Record<Category, string> = {
-  moradia: '#D4AF37',
-  alimentacao: '#4ADE80',
-  transporte: '#60A5FA',
-  lazer: '#F472B6',
-  saude: '#FB923C',
-  educacao: '#A78BFA',
-  investimentos: '#34D399',
-  assinaturas: '#F87171',
-  outros: '#94A3B8',
-};
-
 export interface ParsedTransaction {
   amount: number;
   type: TransactionType;
@@ -165,6 +178,12 @@ export interface ParsedTransaction {
   aiConfidence: number;
   isRecurring: boolean;
   recurrenceHint?: string;
+}
+
+export interface CategoryHint {
+  term: string;
+  category: Category;
+  count: number;
 }
 
 export interface TrialBalanceEntry {
