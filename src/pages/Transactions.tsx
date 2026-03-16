@@ -54,7 +54,7 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
       {/* Totals */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="gradient-card rounded-xl p-3 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Entradas (filtro)</p>
+          <p className="text-xs text-muted-foreground">Entradas no Período</p>
           <p className="text-lg font-bold text-success">{fmt(filteredIncome)}</p>
         </div>
         <div className="gradient-card rounded-xl p-3 border border-border shadow-card">
