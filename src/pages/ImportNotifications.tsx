@@ -95,8 +95,8 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Importar Notificações</h1>
-      <p className="text-sm text-muted-foreground mb-6">Cole notificações bancárias e a IA cria lançamentos automaticamente</p>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Importar Notificações Bancárias</h1>
+      <p className="text-sm text-muted-foreground mb-6">Cole notificações de banco, PIX ou cartão. O Persona Contábil organiza tudo automaticamente.</p>
 
       {!showPreview ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
