@@ -49,16 +49,16 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-foreground mb-1">Lançamentos</h1>
-      <p className="text-sm text-muted-foreground mb-4">Todas as suas transações com filtros avançados</p>
+      <p className="text-sm text-muted-foreground mb-4">Confira e organize todas as suas movimentações financeiras</p>
 
       {/* Totals */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="gradient-card rounded-xl p-3 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Entradas (filtro)</p>
+          <p className="text-xs text-muted-foreground">Entradas no Período</p>
           <p className="text-lg font-bold text-success">{fmt(filteredIncome)}</p>
         </div>
         <div className="gradient-card rounded-xl p-3 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Saídas (filtro)</p>
+          <p className="text-xs text-muted-foreground">Saídas no Período</p>
           <p className="text-lg font-bold text-destructive">{fmt(filteredExpense)}</p>
         </div>
         <div className="gradient-card rounded-xl p-3 border border-border shadow-card">

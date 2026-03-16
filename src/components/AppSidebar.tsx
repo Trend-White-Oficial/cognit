@@ -40,11 +40,14 @@ export function AppSidebar() {
       <SidebarContent>
         <div className="p-4 mb-2">
           {!collapsed && (
-            <h1 className="text-lg font-bold text-primary tracking-tight">
-              Contábil<span className="text-foreground"> IA</span>
-            </h1>
+            <div>
+              <h1 className="text-lg font-bold text-primary tracking-tight">
+                Persona<span className="text-foreground"> Contábil</span>
+              </h1>
+              <p className="text-[10px] text-muted-foreground leading-tight">Inteligência financeira pessoal</p>
+            </div>
           )}
-          {collapsed && <span className="text-primary font-bold text-xl">C</span>}
+          {collapsed && <span className="text-primary font-bold text-xl">P</span>}
         </div>
 
         <SidebarGroup>

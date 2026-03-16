@@ -12,7 +12,7 @@ export default function Goals({ goals }: Props) {
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold text-foreground mb-1">Metas Financeiras</h1>
-      <p className="text-sm text-muted-foreground mb-6">Acompanhe seu progresso</p>
+      <p className="text-sm text-muted-foreground mb-6">Acompanhe o progresso das suas metas com clareza e organização</p>
 
       <div className="space-y-4">
         {goals.map((g, i) => {

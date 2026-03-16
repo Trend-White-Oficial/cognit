@@ -36,7 +36,7 @@ export function QuickAdd({ onAdd }: Props) {
   return (
     <div className="flex gap-2">
       <Input
-        placeholder='Registro rápido: "iFood 45 reais"'
+        placeholder='Registrar lançamento rápido: "iFood 45 reais"'
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}

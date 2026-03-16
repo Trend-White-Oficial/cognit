@@ -38,7 +38,7 @@ export default function Alerts({ alerts, onAdd, onMarkDelivered }: Props) {
       scheduledFor: scheduledFor || undefined,
       delivered: false,
     });
-    toast.success(channel === 'simulatedWhatsApp' ? "Alerta criado (enviado via WhatsApp simulado)" : "Alerta criado");
+    toast.success(channel === 'simulatedWhatsApp' ? "📅 Lembrete criado — Mensagem enviada pelo canal WhatsApp (simulação). Essa funcionalidade será automatizada futuramente." : "📅 Lembrete financeiro criado com sucesso");
     setTitle(""); setMessage(""); setScheduledFor(""); setShowForm(false);
   };
 
@@ -49,8 +49,8 @@ export default function Alerts({ alerts, onAdd, onMarkDelivered }: Props) {
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Alertas</h1>
-          <p className="text-sm text-muted-foreground">Notificações e lembretes financeiros</p>
+          <h1 className="text-2xl font-bold text-foreground">Lembretes Financeiros</h1>
+          <p className="text-sm text-muted-foreground">Acompanhe vencimentos, alertas e notificações importantes</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} className="gradient-gold text-primary-foreground shadow-gold">
           <PlusCircle className="h-4 w-4 mr-2" />
@@ -155,7 +155,7 @@ export default function Alerts({ alerts, onAdd, onMarkDelivered }: Props) {
                     <p className="text-xs text-muted-foreground">{a.message}</p>
                   </div>
                   {a.channel === 'simulatedWhatsApp' && (
-                    <span className="text-xs text-success">✓ Enviado via WhatsApp (simulado)</span>
+                    <span className="text-xs text-success">✓ Enviado via WhatsApp (simulação). Essa funcionalidade será automatizada futuramente.</span>
                   )}
                 </div>
               );

@@ -26,8 +26,8 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
     <div className="space-y-6 p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Visão geral das suas finanças</p>
+          <h1 className="text-2xl font-bold text-foreground">Persona Contábil</h1>
+          <p className="text-sm text-muted-foreground">Organização financeira com lógica profissional, sem complicação.</p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" className="border-border text-muted-foreground hover:text-foreground">
@@ -43,24 +43,28 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
 
       {/* Cards: Saldo, Entradas, Saídas, Resultado */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Saldo Geral</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Saldo Atual</p>
           <p className={`text-xl font-bold ${balance >= 0 ? 'text-success' : 'text-destructive'}`}>{fmt(balance)}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Resultado líquido considerando entradas, saídas e dívidas registradas.</p>
         </div>
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Entradas</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Entradas no Período</p>
           <p className="text-xl font-bold text-success">{fmt(totalIncome)}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Valores recebidos no mês atual.</p>
         </div>
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Saídas</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Saídas no Período</p>
           <p className="text-xl font-bold text-destructive">{fmt(totalExpenses)}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Despesas confirmadas no mês atual.</p>
         </div>
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Resultado</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Resultado do Mês</p>
           <p className={`text-xl font-bold ${balance - totalDebts >= 0 ? 'text-success' : 'text-destructive'}`}>
             {fmt(balance - totalDebts)}
           </p>
           {totalDebts > 0 && <p className="text-xs text-muted-foreground mt-1">após dívidas</p>}
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Diferença entre entradas e saídas.</p>
         </div>
       </div>
 
@@ -74,10 +78,10 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
-            Balancete do Mês
+            Resumo Contábil do Mês
           </h3>
           <Button asChild variant="ghost" size="sm" className="text-primary text-xs">
-            <Link to="/balancete">Ver completo →</Link>
+            <Link to="/balancete">Ver balancete →</Link>
           </Button>
         </div>
         <div className="flex gap-6 text-sm">

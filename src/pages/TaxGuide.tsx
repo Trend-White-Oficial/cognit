@@ -30,9 +30,11 @@ export default function TaxGuide({ transactions, onUpdate }: Props) {
   );
 
   const checklist = [
+    { label: "Guardar comprovantes de despesas médicas", done: false },
+    { label: "Revisar categorias de lançamentos do mês", done: false },
+    { label: "Conferir recorrência de rendimentos", done: false },
     { label: "Informe de Rendimentos do empregador", done: false },
-    { label: "Comprovantes de despesas médicas", done: false },
-    { label: "Recibos de educação", done: false },
+    { label: "Recibos de educação arquivados", done: false },
     { label: "Informe de rendimentos bancários", done: false },
     { label: "Notas de corretagem (se aplicável)", done: false },
     { label: "Comprovantes de previdência privada", done: false },
@@ -47,17 +49,17 @@ export default function TaxGuide({ transactions, onUpdate }: Props) {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-2 mb-1">
-        <h1 className="text-2xl font-bold text-foreground">Orientações de IR</h1>
+        <h1 className="text-2xl font-bold text-foreground">Orientação Fiscal</h1>
         <Tooltip>
           <TooltipTrigger>
             <HelpCircle className="h-4 w-4 text-muted-foreground" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs text-xs">
-            Estas orientações são informativas e não substituem um contador. Consulte um profissional para sua declaração.
+            ℹ️ As informações abaixo são apenas indicativas e não substituem um contador. Consulte um profissional para sua declaração de IR.
           </TooltipContent>
         </Tooltip>
       </div>
-      <p className="text-sm text-muted-foreground mb-6">Organize seus dados para a declaração de Imposto de Renda</p>
+      <p className="text-sm text-muted-foreground mb-6">Organize seus dados para a declaração de Imposto de Renda com base nos dados da Receita Federal do Brasil</p>
 
       {/* Tips */}
       <div className="space-y-3 mb-6">
@@ -101,7 +103,7 @@ export default function TaxGuide({ transactions, onUpdate }: Props) {
       <div className="gradient-card rounded-xl border border-border shadow-card overflow-hidden">
         <div className="p-4 border-b border-border">
           <h3 className="text-sm font-semibold text-foreground">Lançamentos relevantes para IR</h3>
-          <p className="text-xs text-muted-foreground">Receitas, saúde e educação — marque os que deseja incluir</p>
+          <p className="text-xs text-muted-foreground">Este lançamento pode ser relevante para declaração de Imposto de Renda. Marque para acompanhar.</p>
         </div>
         <Table>
           <TableHeader>

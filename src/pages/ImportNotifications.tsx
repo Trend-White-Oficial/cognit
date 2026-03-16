@@ -42,7 +42,7 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
       setParsed(results);
       setShowPreview(true);
       setIsParsing(false);
-      toast.success(`${results.length} lançamentos identificados`);
+      toast.success(`✅ ${results.length} lançamentos prontos para conferência. Revise os dados antes de salvar.`);
     }, 600);
   };
 
@@ -95,8 +95,8 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Importar Notificações</h1>
-      <p className="text-sm text-muted-foreground mb-6">Cole notificações bancárias e a IA cria lançamentos automaticamente</p>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Importar Notificações Bancárias</h1>
+      <p className="text-sm text-muted-foreground mb-6">Cole notificações de banco, PIX ou cartão. O Persona Contábil organiza tudo automaticamente.</p>
 
       {!showPreview ? (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -112,7 +112,7 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
               </Button>
             </div>
             <Textarea
-              placeholder={`Cole aqui suas notificações bancárias.\n\nExemplos:\n"PIX recebido de João Silva às 14:32 no valor de R$ 250,00"\n"Compra débito Mercado Livre R$ 89,90 23/03 18:45"\n"Fatura cartão Inter paga R$ 760,00 10/04"`}
+              placeholder={`Cole aqui suas notificações bancárias.\n\nExemplos:\nPIX recebido de João Silva R$ 320,00 21/03 10:12\nCompra débito Mercado Livre R$ 89,90 23/03 18:45\nFatura cartão Inter paga R$ 760,00 10/04`}
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               className="min-h-[200px] bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none"

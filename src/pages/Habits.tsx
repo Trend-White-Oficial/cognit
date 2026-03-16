@@ -21,23 +21,23 @@ export default function Habits({ transactions }: Props) {
   const insights = useMemo(() => {
     const tips: string[] = [];
     if (habits.commonPixHours.length > 0) {
-      tips.push(`Seus PIX são mais frequentes às ${habits.commonPixHours.map(h => `${h}h`).join(', ')}. Defina lembretes nesses horários para controlar gastos.`);
+      tips.push(`⏱️ Padrão identificado — A maioria dos seus PIX enviados ocorre entre ${habits.commonPixHours.map(h => `${h}h`).join(' e ')}. Esse comportamento ajuda a IA a organizar melhor seus lançamentos.`);
     }
     if (habits.avgPixAmount > 0) {
-      tips.push(`Seu PIX médio é de ${fmt(habits.avgPixAmount)}. Considere estabelecer um limite diário.`);
+      tips.push(`💰 Valor médio de PIX — Suas transferências PIX têm valor médio de ${fmt(habits.avgPixAmount)}. Acompanhar esse indicador ajuda a identificar variações incomuns.`);
     }
     const busiestDay = Object.entries(habits.weeklyPattern).sort((a, b) => b[1] - a[1])[0];
     if (busiestDay && busiestDay[1] > 0) {
-      tips.push(`${busiestDay[0]} é o dia com mais transações. Planeje seus gastos com antecedência.`);
+      tips.push(`🔍 Comportamento semanal — Seus gastos apresentam maior frequência às ${busiestDay[0]}s. Esse padrão ajuda a planejar com antecedência.`);
     }
-    if (tips.length === 0) tips.push("Registre mais transações para que a IA identifique seus padrões financeiros.");
+    if (tips.length === 0) tips.push("📋 Registre mais transações para que o Persona Contábil identifique seus padrões financeiros.");
     return tips;
   }, [habits]);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Hábitos Financeiros</h1>
-      <p className="text-sm text-muted-foreground mb-6">Padrões detectados pela IA com base nas suas transações</p>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Comportamento Financeiro</h1>
+      <p className="text-sm text-muted-foreground mb-6">Padrões identificados pela IA para organizar melhor seus lançamentos</p>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -114,11 +114,11 @@ export default function Habits({ transactions }: Props) {
       <div className="gradient-card rounded-xl p-5 border border-primary/20 shadow-gold">
         <div className="flex items-center gap-2 mb-3">
           <Brain className="h-5 w-5 text-primary" />
-          <h3 className="text-sm font-semibold text-primary">Insights da IA</h3>
+          <h3 className="text-sm font-semibold text-primary">Análise do Persona Contábil</h3>
         </div>
         <div className="space-y-2">
           {insights.map((tip, i) => (
-            <p key={i} className="text-sm text-foreground leading-relaxed">💡 {tip}</p>
+            <p key={i} className="text-sm text-foreground leading-relaxed">{tip}</p>
           ))}
         </div>
       </div>
