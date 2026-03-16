@@ -61,8 +61,8 @@ export default function AiAssistant(props: Props) {
 
   return (
     <div className="p-6 max-w-2xl mx-auto flex flex-col h-[calc(100vh-4rem)]">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Assistente IA</h1>
-      <p className="text-sm text-muted-foreground mb-4">Pergunte sobre suas finanças</p>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Persona Contábil — Assistente</h1>
+      <p className="text-sm text-muted-foreground mb-4">Seu assistente contábil pessoal. Pergunte sobre suas finanças.</p>
 
       <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
         {messages.map((m, i) => (
