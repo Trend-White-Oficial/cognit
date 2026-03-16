@@ -2,121 +2,74 @@ import { Category, CategoryHint } from './types';
 
 const KEYWORD_MAP: Record<string, Category> = {
   // Telecomunicações
-  vivo: 'telecomunicacoes',
-  claro: 'telecomunicacoes',
-  tim: 'telecomunicacoes',
-  oi: 'telecomunicacoes',
-  net: 'telecomunicacoes',
-  gvt: 'telecomunicacoes',
-  internet: 'telecomunicacoes',
-  telefone: 'telecomunicacoes',
-  celular: 'telecomunicacoes',
+  vivo: 'telecomunicacoes', claro: 'telecomunicacoes', tim: 'telecomunicacoes',
+  oi: 'telecomunicacoes', net: 'telecomunicacoes', gvt: 'telecomunicacoes',
+  internet: 'telecomunicacoes', fibra: 'telecomunicacoes', telefone: 'telecomunicacoes', celular: 'telecomunicacoes',
 
   // Moradia
-  aluguel: 'moradia',
-  condomínio: 'moradia',
-  condominio: 'moradia',
-  iptu: 'moradia',
-  luz: 'moradia',
-  energia: 'moradia',
-  água: 'moradia',
-  agua: 'moradia',
-  gás: 'moradia',
-  gas: 'moradia',
+  aluguel: 'moradia', 'condomínio': 'moradia', condominio: 'moradia', iptu: 'moradia',
+
+  // Energia
+  luz: 'energia', energia: 'energia', enel: 'energia', cemig: 'energia', cpfl: 'energia', eletropaulo: 'energia',
+
+  // Água/Gás
+  'água': 'agua_gas', agua: 'agua_gas', saae: 'agua_gas', sabesp: 'agua_gas',
+  'gás': 'agua_gas', gas: 'agua_gas',
 
   // Alimentação
-  mercado: 'alimentacao',
-  supermercado: 'alimentacao',
-  ifood: 'alimentacao',
-  restaurante: 'alimentacao',
-  lanche: 'alimentacao',
-  padaria: 'alimentacao',
-  delivery: 'alimentacao',
-  ubereats: 'alimentacao',
-  'uber eats': 'alimentacao',
-  açougue: 'alimentacao',
-  acougue: 'alimentacao',
-  feira: 'alimentacao',
-  hortifruti: 'alimentacao',
+  mercado: 'alimentacao', supermercado: 'alimentacao', ifood: 'alimentacao',
+  restaurante: 'alimentacao', lanche: 'alimentacao', padaria: 'alimentacao',
+  delivery: 'alimentacao', ubereats: 'alimentacao', 'uber eats': 'alimentacao',
+  lanchonete: 'alimentacao', 'açougue': 'alimentacao', acougue: 'alimentacao',
+  feira: 'alimentacao', hortifruti: 'alimentacao',
 
   // Transporte
-  uber: 'transporte',
-  '99': 'transporte',
-  gasolina: 'transporte',
-  combustível: 'transporte',
-  combustivel: 'transporte',
-  estacionamento: 'transporte',
-  ônibus: 'transporte',
-  onibus: 'transporte',
-  metrô: 'transporte',
-  metro: 'transporte',
-  pedágio: 'transporte',
-  pedagio: 'transporte',
+  uber: 'transporte', '99': 'transporte', gasolina: 'transporte',
+  'combustível': 'transporte', combustivel: 'transporte', estacionamento: 'transporte',
+  'ônibus': 'transporte', onibus: 'transporte', 'metrô': 'transporte', metro: 'transporte',
+  'pedágio': 'transporte', pedagio: 'transporte', ipva: 'transporte', oficina: 'transporte',
 
   // Lazer
-  cinema: 'lazer',
-  show: 'lazer',
-  bar: 'lazer',
-  viagem: 'lazer',
-  parque: 'lazer',
-  teatro: 'lazer',
-  jogo: 'lazer',
+  cinema: 'lazer', show: 'lazer', bar: 'lazer', viagem: 'lazer',
+  parque: 'lazer', teatro: 'lazer', jogo: 'lazer',
 
   // Saúde
-  farmácia: 'saude',
-  farmacia: 'saude',
-  médico: 'saude',
-  medico: 'saude',
-  hospital: 'saude',
-  academia: 'saude',
-  gym: 'saude',
-  dentista: 'saude',
-  consulta: 'saude',
-  exame: 'saude',
-  'plano de saúde': 'saude',
+  'farmácia': 'saude', farmacia: 'saude', 'médico': 'saude', medico: 'saude',
+  hospital: 'saude', academia: 'saude', gym: 'saude', smartfit: 'saude',
+  dentista: 'saude', consulta: 'saude', exame: 'saude', 'plano de saúde': 'saude',
 
   // Educação
-  curso: 'educacao',
-  livro: 'educacao',
-  escola: 'educacao',
-  faculdade: 'educacao',
-  mensalidade: 'educacao',
-  udemy: 'educacao',
-  alura: 'educacao',
+  curso: 'educacao', livro: 'educacao', escola: 'educacao', faculdade: 'educacao',
+  udemy: 'educacao', alura: 'educacao',
 
   // Investimentos
-  investimento: 'investimentos',
-  tesouro: 'investimentos',
-  ações: 'investimentos',
-  acoes: 'investimentos',
-  poupança: 'investimentos',
-  poupanca: 'investimentos',
-  cdb: 'investimentos',
-  fundo: 'investimentos',
+  investimento: 'investimentos', tesouro: 'investimentos',
+  'ações': 'investimentos', acoes: 'investimentos',
+  'poupança': 'investimentos', poupanca: 'investimentos',
+  cdb: 'investimentos', fundo: 'investimentos',
 
   // Assinaturas
-  netflix: 'assinaturas',
-  spotify: 'assinaturas',
-  disney: 'assinaturas',
-  hbo: 'assinaturas',
-  amazon: 'assinaturas',
-  prime: 'assinaturas',
-  youtube: 'assinaturas',
-  'google one': 'assinaturas',
-  icloud: 'assinaturas',
-  deezer: 'assinaturas',
-  globoplay: 'assinaturas',
+  netflix: 'assinaturas', spotify: 'assinaturas', disney: 'assinaturas',
+  hbo: 'assinaturas', amazon: 'assinaturas', prime: 'assinaturas',
+  youtube: 'assinaturas', 'google one': 'assinaturas', icloud: 'assinaturas',
+  deezer: 'assinaturas', globoplay: 'assinaturas',
+  mensalidade: 'assinaturas', assinatura: 'assinaturas',
 
-  // Rendimentos
-  salário: 'rendimentos',
-  salario: 'rendimentos',
-  'pro labore': 'rendimentos',
-  freelance: 'rendimentos',
-  rendimento: 'rendimentos',
-  dividendo: 'rendimentos',
+  // Rendimentos / Income
+  'salário': 'salario', salario: 'salario', 'pro labore': 'salario', folha: 'salario',
+  freelance: 'renda_extra', freela: 'renda_extra', bico: 'renda_extra', 'premiação': 'renda_extra',
+  rendimento: 'rendimentos_financeiros', dividendo: 'rendimentos_financeiros',
+  juros: 'rendimentos_financeiros', cdi: 'rendimentos_financeiros',
+  reembolso: 'reembolsos',
+  'serviço': 'vendas_servicos', servico: 'vendas_servicos', venda: 'vendas_servicos', nota: 'vendas_servicos',
+
+  // Impostos
+  imposto: 'impostos_taxas', taxa: 'impostos_taxas', darf: 'impostos_taxas',
+
+  // Família
+  mesada: 'familia',
 };
 
-// Cartão de crédito patterns (requires "fatura" context)
 const BANK_NAMES = ['nubank', 'inter', 'santander', 'itau', 'itaú', 'bradesco', 'c6', 'xp', 'neon', 'pan', 'original'];
 
 let categoryHints: CategoryHint[] = [];
@@ -142,20 +95,17 @@ export function addCategoryHint(term: string, category: Category) {
 export function classifyTransaction(description: string): Category {
   const lower = description.toLowerCase();
 
-  // 1. Check learned hints first (higher priority)
   const matchedHints = categoryHints
     .filter(h => lower.includes(h.term))
     .sort((a, b) => b.count - a.count);
   if (matchedHints.length > 0) return matchedHints[0].category;
 
-  // 2. Check bank + fatura = cartão de crédito
   if (lower.includes('fatura')) {
     for (const bank of BANK_NAMES) {
       if (lower.includes(bank)) return 'cartao_credito';
     }
   }
 
-  // 3. Keyword map
   for (const [keyword, category] of Object.entries(KEYWORD_MAP)) {
     if (lower.includes(keyword)) return category;
   }
@@ -166,7 +116,6 @@ export function classifyTransaction(description: string): Category {
 export function classifyWithConfidence(description: string): { category: Category; confidence: number } {
   const lower = description.toLowerCase();
 
-  // Learned hints
   const matchedHints = categoryHints
     .filter(h => lower.includes(h.term))
     .sort((a, b) => b.count - a.count);
@@ -175,14 +124,12 @@ export function classifyWithConfidence(description: string): { category: Categor
     return { category: matchedHints[0].category, confidence };
   }
 
-  // Bank fatura
   if (lower.includes('fatura')) {
     for (const bank of BANK_NAMES) {
       if (lower.includes(bank)) return { category: 'cartao_credito', confidence: 0.85 };
     }
   }
 
-  // Keyword map
   for (const [keyword, category] of Object.entries(KEYWORD_MAP)) {
     if (lower.includes(keyword)) return { category, confidence: 0.82 };
   }

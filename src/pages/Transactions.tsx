@@ -1,12 +1,14 @@
 import { useState, useMemo } from "react";
-import { Transaction, CATEGORY_LABELS, Category, PAYMENT_METHOD_LABELS } from "@/lib/types";
+import { Transaction, CATEGORY_LABELS, Category, PAYMENT_METHOD_LABELS, CATEGORY_META } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { Trash2, Copy, Edit2, Receipt } from "lucide-react";
+import { Trash2, Copy, Edit2 } from "lucide-react";
 import { toast } from "sonner";
+import EditTransactionDialog from "@/components/EditTransactionDialog";
+import { addCategoryHint } from "@/lib/ai-classifier";
 
 interface Props {
   transactions: Transaction[];
@@ -20,6 +22,7 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterMethod, setFilterMethod] = useState<string>("all");
+  const [editing, setEditing] = useState<Transaction | null>(null);
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -44,6 +47,24 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
     const { id, ...rest } = t;
     onAdd(rest);
     toast.success("Lançamento duplicado");
+  };
+
+  const handleDelete = (id: string) => {
+    onDelete(id);
+    toast.success("Lançamento excluído");
+  };
+
+  const handleSaveEdit = (id: string, updates: Partial<Transaction>) => {
+    // Learn category preference
+    if (updates.category && editing) {
+      const desc = updates.description || editing.description;
+      const firstWord = desc.split(/\s+/)[0];
+      if (firstWord && updates.category !== editing.category) {
+        addCategoryHint(firstWord, updates.category as Category);
+      }
+    }
+    onUpdate(id, updates);
+    toast.success("Lançamento atualizado");
   };
 
   return (
@@ -144,7 +165,7 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
                   {t.time && <span className="text-muted-foreground text-xs ml-1">{t.time}</span>}
                 </TableCell>
                 <TableCell className="text-foreground text-sm">
-                  {t.description}
+                  {CATEGORY_META[t.category]?.icon} {t.description}
                   {t.recurring && <Badge variant="outline" className="ml-2 text-xs border-primary/30 text-primary">Recorrente</Badge>}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">{CATEGORY_LABELS[t.category]}</TableCell>
@@ -156,10 +177,13 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex items-center justify-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setEditing(t)}>
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleDuplicate(t)}>
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => { onDelete(t.id); toast.success("Lançamento excluído"); }}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(t.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -169,6 +193,17 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
           </TableBody>
         </Table>
       </motion.div>
+
+      {editing && (
+        <EditTransactionDialog
+          transaction={editing}
+          open={!!editing}
+          onClose={() => setEditing(null)}
+          onSave={(updates) => handleSaveEdit(editing.id, updates)}
+          onDuplicate={() => handleDuplicate(editing)}
+          onDelete={() => handleDelete(editing.id)}
+        />
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Transaction, FinancialGoal, Category, Debt, DebtStatus, Alert, NotificationRecord } from './types';
 
 const SAMPLE_TRANSACTIONS: Transaction[] = [
-  { id: '1', value: 5000, type: 'income', category: 'outros', date: '2026-03-01', time: '08:59', description: 'Salário', paymentMethod: 'Transferência', method: 'ted', recurring: true, aiConfidence: 0.95 },
+  { id: '1', value: 5000, type: 'income', category: 'salario', date: '2026-03-01', time: '08:59', description: 'Salário', paymentMethod: 'Transferência', method: 'ted', recurring: true, aiConfidence: 0.95 },
   { id: '2', value: 120, type: 'expense', category: 'alimentacao', date: '2026-03-02', time: '07:49', description: 'Mercado', paymentMethod: 'Cartão', method: 'debit', recurring: false, aiConfidence: 0.9 },
   { id: '3', value: 1200, type: 'expense', category: 'moradia', date: '2026-03-03', description: 'Aluguel', paymentMethod: 'Boleto', method: 'boleto', recurring: true, aiConfidence: 0.95 },
   { id: '4', value: 45, type: 'expense', category: 'alimentacao', date: '2026-03-04', time: '12:30', description: 'iFood delivery', paymentMethod: 'Cartão', method: 'credit', recurring: false, aiConfidence: 0.9 },
@@ -73,6 +73,14 @@ export function useFinanceStore() {
     setGoals(prev => [...prev, { ...g, id: crypto.randomUUID() }]);
   }, []);
 
+  const updateGoal = useCallback((id: string, updates: Partial<FinancialGoal>) => {
+    setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
+  }, []);
+
+  const deleteGoal = useCallback((id: string) => {
+    setGoals(prev => prev.filter(g => g.id !== id));
+  }, []);
+
   const updateGoalProgress = useCallback((id: string, amount: number) => {
     setGoals(prev => prev.map(g => g.id === id ? { ...g, currentAmount: Math.min(g.currentAmount + amount, g.targetAmount) } : g));
   }, []);
@@ -100,7 +108,7 @@ export function useFinanceStore() {
   return {
     transactions, goals, debts, alerts, notifications,
     addTransaction, addTransactions, updateTransaction, deleteTransaction,
-    addGoal, updateGoalProgress,
+    addGoal, updateGoal, deleteGoal, updateGoalProgress,
     addDebt, updateDebtStatus,
     addAlert, markAlertDelivered,
     addNotification,

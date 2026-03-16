@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, FileText, Table2, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp } from "lucide-react";
+import { LayoutDashboard, PlusCircle, FileText, Table2, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -19,7 +19,12 @@ const mainItems = [
   { title: "Registrar", url: "/registrar", icon: PlusCircle },
   { title: "Lançamentos", url: "/lancamentos", icon: Receipt },
   { title: "Planejamento", url: "/planejamento", icon: FileText },
+];
+
+const contabilItems = [
   { title: "Balancete", url: "/balancete", icon: BarChart3 },
+  { title: "Balanço Patrimonial", url: "/balanco", icon: Scale },
+  { title: "DRE", url: "/dre", icon: FileBarChart },
 ];
 
 const toolItems = [
@@ -34,6 +39,28 @@ const toolItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+
+  const renderGroup = (label: string, items: typeof mainItems) => (
+    <SidebarGroup>
+      <SidebarGroupLabel className="text-muted-foreground text-xs uppercase tracking-widest">
+        {!collapsed && label}
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild>
+                <NavLink to={item.url} end={item.url === "/"} className="hover:bg-muted/50 transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {!collapsed && <span>{item.title}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
 
   return (
     <Sidebar collapsible="icon">
@@ -50,45 +77,9 @@ export function AppSidebar() {
           {collapsed && <span className="text-primary font-bold text-xl">P</span>}
         </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground text-xs uppercase tracking-widest">
-            {!collapsed && "Principal"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end={item.url === "/"} className="hover:bg-muted/50 transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground text-xs uppercase tracking-widest">
-            {!collapsed && "Ferramentas"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {toolItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className="hover:bg-muted/50 transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {renderGroup("Principal", mainItems)}
+        {renderGroup("Contabilidade", contabilItems)}
+        {renderGroup("Ferramentas", toolItems)}
       </SidebarContent>
     </Sidebar>
   );

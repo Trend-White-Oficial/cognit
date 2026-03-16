@@ -12,6 +12,8 @@ import AiAssistant from "./AiAssistant";
 import ImportNotifications from "./ImportNotifications";
 import Transactions from "./Transactions";
 import TrialBalance from "./TrialBalance";
+import BalanceSheet from "./BalanceSheet";
+import DREPage from "./DRE";
 import Habits from "./Habits";
 import Alerts from "./Alerts";
 import TaxGuide from "./TaxGuide";
@@ -37,8 +39,10 @@ const AppLayout = () => {
               <Route path="planilha" element={<Spreadsheet transactions={store.transactions} />} />
               <Route path="planejamento" element={<Planning />} />
               <Route path="balancete" element={<TrialBalance transactions={store.transactions} />} />
+              <Route path="balanco" element={<BalanceSheet transactions={store.transactions} debts={store.debts} />} />
+              <Route path="dre" element={<DREPage transactions={store.transactions} />} />
               <Route path="dividas" element={<Debts debts={store.debts} onAdd={store.addDebt} onUpdateStatus={store.updateDebtStatus} />} />
-              <Route path="metas" element={<Goals goals={store.goals} />} />
+              <Route path="metas" element={<Goals goals={store.goals} onAdd={store.addGoal} onUpdate={store.updateGoal} onDelete={store.deleteGoal} onAddProgress={store.updateGoalProgress} />} />
               <Route path="habitos" element={<Habits transactions={store.transactions} />} />
               <Route path="alertas" element={<Alerts alerts={store.alerts} onAdd={store.addAlert} onMarkDelivered={store.markAlertDelivered} />} />
               <Route path="ir" element={<TaxGuide transactions={store.transactions} onUpdate={store.updateTransaction} />} />
