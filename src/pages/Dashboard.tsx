@@ -78,7 +78,7 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-primary" />
-            Balancete do Mês
+            Resumo Contábil do Mês
           </h3>
           <Button asChild variant="ghost" size="sm" className="text-primary text-xs">
             <Link to="/balancete">Ver completo →</Link>
