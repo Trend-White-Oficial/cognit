@@ -112,7 +112,7 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
               </Button>
             </div>
             <Textarea
-              placeholder={`Cole aqui suas notificações bancárias.\n\nExemplos:\n"PIX recebido de João Silva às 14:32 no valor de R$ 250,00"\n"Compra débito Mercado Livre R$ 89,90 23/03 18:45"\n"Fatura cartão Inter paga R$ 760,00 10/04"`}
+              placeholder={`Cole aqui suas notificações bancárias.\n\nExemplos:\nPIX recebido de João Silva R$ 320,00 21/03 10:12\nCompra débito Mercado Livre R$ 89,90 23/03 18:45\nFatura cartão Inter paga R$ 760,00 10/04`}
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               className="min-h-[200px] bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none"
