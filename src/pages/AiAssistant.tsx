@@ -46,7 +46,7 @@ function generateResponse(question: string, props: Props): string {
 
 export default function AiAssistant(props: Props) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Olá! Sou seu assistente financeiro. Pergunte sobre seus gastos, onde economizar ou seu saldo. 💰" },
+    { role: "assistant", content: "Olá! Sou o Persona Contábil, seu assistente de inteligência financeira. Pergunte sobre seus gastos, categorias, projeções ou orientações — estou aqui para organizar sua vida financeira. 📊" },
   ]);
   const [input, setInput] = useState("");
 
