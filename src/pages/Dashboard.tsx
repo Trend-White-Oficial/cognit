@@ -43,24 +43,28 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
 
       {/* Cards: Saldo, Entradas, Saídas, Resultado */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Saldo Geral</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Saldo Atual</p>
           <p className={`text-xl font-bold ${balance >= 0 ? 'text-success' : 'text-destructive'}`}>{fmt(balance)}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Resultado líquido considerando entradas, saídas e dívidas registradas.</p>
         </div>
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Entradas</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Entradas no Período</p>
           <p className="text-xl font-bold text-success">{fmt(totalIncome)}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Valores recebidos no mês atual.</p>
         </div>
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Saídas</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Saídas no Período</p>
           <p className="text-xl font-bold text-destructive">{fmt(totalExpenses)}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Despesas confirmadas no mês atual.</p>
         </div>
-        <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Resultado</p>
+        <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
+          <p className="text-xs text-muted-foreground">Resultado do Mês</p>
           <p className={`text-xl font-bold ${balance - totalDebts >= 0 ? 'text-success' : 'text-destructive'}`}>
             {fmt(balance - totalDebts)}
           </p>
           {totalDebts > 0 && <p className="text-xs text-muted-foreground mt-1">após dívidas</p>}
+          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Diferença entre entradas e saídas.</p>
         </div>
       </div>
 
