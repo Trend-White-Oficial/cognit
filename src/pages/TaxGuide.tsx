@@ -30,9 +30,11 @@ export default function TaxGuide({ transactions, onUpdate }: Props) {
   );
 
   const checklist = [
+    { label: "Guardar comprovantes de despesas médicas", done: false },
+    { label: "Revisar categorias de lançamentos do mês", done: false },
+    { label: "Conferir recorrência de rendimentos", done: false },
     { label: "Informe de Rendimentos do empregador", done: false },
-    { label: "Comprovantes de despesas médicas", done: false },
-    { label: "Recibos de educação", done: false },
+    { label: "Recibos de educação arquivados", done: false },
     { label: "Informe de rendimentos bancários", done: false },
     { label: "Notas de corretagem (se aplicável)", done: false },
     { label: "Comprovantes de previdência privada", done: false },

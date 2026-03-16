@@ -205,27 +205,27 @@ export function generateTaxTips(transactions: { type: string; category: string; 
   
   if (incomeTotal > 2259.20) {
     tips.push({
-      title: 'Rendimentos tributáveis',
-      message: `Sua renda mensal de R$ ${incomeTotal.toFixed(2).replace('.', ',')} pode estar sujeita à retenção de IR na fonte.`,
+      title: '📊 Rendimentos tributáveis',
+      message: `Sua renda mensal de R$ ${incomeTotal.toFixed(2).replace('.', ',')} pode estar sujeita à retenção de IR na fonte. Verifique com seu contador.`,
     });
   }
 
   const hasFreelance = transactions.some(t => t.description.toLowerCase().includes('freelance') || t.description.toLowerCase().includes('serviço'));
   if (hasFreelance) {
     tips.push({
-      title: 'Serviços prestados',
-      message: 'Rendimentos de serviços prestados como autônomo devem ser declarados via carnê-leão mensal.',
+      title: '📋 Serviços prestados',
+      message: 'Rendimentos de serviços prestados como autônomo devem ser declarados via carnê-leão mensal. Consulte um profissional.',
     });
   }
 
   tips.push({
-    title: 'Guarde seus comprovantes',
-    message: 'Mantenha recibos de saúde, educação e previdência — são dedutíveis no IR.',
+    title: '📎 Guarde seus comprovantes',
+    message: 'Mantenha recibos de saúde, educação e previdência organizados — são dedutíveis no IR.',
   });
 
   tips.push({
-    title: 'Checklist mensal',
-    message: 'Verifique: comprovantes médicos, recibos de educação, informe de rendimentos bancários e notas de corretagem.',
+    title: '✅ Checklist mensal',
+    message: 'Guardar comprovante, revisar categoria, conferir recorrência — itens essenciais para manter sua declaração em dia.',
   });
 
   return tips;

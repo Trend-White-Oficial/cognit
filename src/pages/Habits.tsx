@@ -118,7 +118,7 @@ export default function Habits({ transactions }: Props) {
         </div>
         <div className="space-y-2">
           {insights.map((tip, i) => (
-            <p key={i} className="text-sm text-foreground leading-relaxed">💡 {tip}</p>
+            <p key={i} className="text-sm text-foreground leading-relaxed">{tip}</p>
           ))}
         </div>
       </div>

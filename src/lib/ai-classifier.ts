@@ -89,12 +89,12 @@ export function generateInsight(totalIncome: number, totalExpenses: number, expe
   const topCategory = Object.entries(expensesByCategory).sort((a, b) => b[1] - a[1])[0];
 
   if (projectedBalance < 0) {
-    return `⚠️ Atenção! No ritmo atual, você pode fechar o mês com saldo negativo de R$ ${Math.abs(projectedBalance).toFixed(0)}. Considere reduzir gastos.`;
+    return `⚠️ Atenção preventiva — No ritmo atual de despesas, o saldo projetado para o final do mês pode ficar negativo em R$ ${Math.abs(projectedBalance).toFixed(0)}. Deseja acompanhar esse padrão com mais atenção?`;
   }
 
   if (topCategory && topCategory[1] / totalExpenses > 0.35) {
-    return `💡 Você gastou ${((topCategory[1] / totalExpenses) * 100).toFixed(0)}% das despesas com ${topCategory[0]}. Considere revisar esses gastos.`;
+    return `📊 Análise do mês — ${((topCategory[1] / totalExpenses) * 100).toFixed(0)}% das suas despesas estão concentradas em ${topCategory[0]}. Se mantiver esse padrão, o saldo final pode ser impactado.`;
   }
 
-  return `✅ Se manter o ritmo, você terminará o mês com saldo de R$ ${projectedBalance.toFixed(0)}. Continue assim!`;
+  return `✅ Projeção positiva — Com base no seu ritmo atual, o saldo projetado para o final do mês é de R$ ${projectedBalance.toFixed(0)}. Continue mantendo esse equilíbrio.`;
 }

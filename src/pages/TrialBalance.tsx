@@ -103,7 +103,7 @@ export default function TrialBalance({ transactions }: Props) {
           <p className="text-xl font-bold text-destructive">{fmt(totalExpense)}</p>
         </div>
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
-          <p className="text-xs text-muted-foreground">Resultado</p>
+          <p className="text-xs text-muted-foreground">Resultado Líquido</p>
           <p className={`text-xl font-bold ${result >= 0 ? 'text-success' : 'text-destructive'}`}>{fmt(result)}</p>
         </div>
       </div>

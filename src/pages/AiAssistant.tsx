@@ -23,25 +23,25 @@ function generateResponse(question: string, props: Props): string {
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   if (q.includes("gastei") || q.includes("gasto") || q.includes("despesa")) {
-    return `Você gastou ${fmt(props.totalExpenses)} neste mês. Seu saldo atual é ${fmt(props.balance)}.`;
+    return `📊 Resumo de despesas — Suas saídas neste período totalizam ${fmt(props.totalExpenses)}. O saldo atual considerando entradas e saídas é ${fmt(props.balance)}.`;
   }
   if (q.includes("mais") || q.includes("categoria") || q.includes("onde")) {
     const top = Object.entries(props.expensesByCategory).sort((a, b) => b[1] - a[1]);
-    if (top.length === 0) return "Não há despesas registradas ainda.";
+    if (top.length === 0) return "Ainda não há despesas registradas. Importe notificações ou registre lançamentos para começar a análise.";
     const topItems = top.slice(0, 3).map(([k, v]) => `${CATEGORY_LABELS[k as keyof typeof CATEGORY_LABELS] || k}: ${fmt(v)}`).join(", ");
-    return `Suas maiores categorias de gasto são: ${topItems}`;
+    return `📊 Análise por categoria — Suas maiores categorias de gasto são: ${topItems}. Acompanhar essas categorias ajuda a identificar oportunidades de ajuste.`;
   }
   if (q.includes("economizar") || q.includes("economia") || q.includes("dica")) {
     const top = Object.entries(props.expensesByCategory).sort((a, b) => b[1] - a[1]);
     if (top.length > 0) {
-      return `Considere reduzir gastos com ${CATEGORY_LABELS[top[0][0] as keyof typeof CATEGORY_LABELS]}, que representa sua maior despesa (${fmt(top[0][1])}). Pequenas reduções em delivery e assinaturas podem gerar economia significativa.`;
+      return `💡 Sugestão — A categoria ${CATEGORY_LABELS[top[0][0] as keyof typeof CATEGORY_LABELS]} representa sua maior despesa (${fmt(top[0][1])}). Pequenos ajustes em gastos recorrentes costumam gerar economia consistente ao longo do mês.`;
     }
-    return "Registre mais transações para que eu possa dar dicas personalizadas!";
+    return "📋 Registre mais transações para que o Persona Contábil possa oferecer análises personalizadas.";
   }
   if (q.includes("saldo") || q.includes("sobra")) {
-    return `Seu saldo atual é ${fmt(props.balance)}. Receitas: ${fmt(props.totalIncome)}, Despesas: ${fmt(props.totalExpenses)}.`;
+    return `💰 Posição atual — Saldo: ${fmt(props.balance)}. Entradas no período: ${fmt(props.totalIncome)}. Saídas no período: ${fmt(props.totalExpenses)}. Esses valores são calculados automaticamente a partir dos lançamentos.`;
   }
-  return "Posso te ajudar com: quanto você gastou, onde está gastando mais, dicas de economia e seu saldo. Tente perguntar!";
+  return "Posso te ajudar com: resumo de despesas, análise por categoria, sugestões de economia e sua posição financeira. Como posso organizar melhor suas finanças?";
 }
 
 export default function AiAssistant(props: Props) {

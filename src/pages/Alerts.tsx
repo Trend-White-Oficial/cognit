@@ -155,7 +155,7 @@ export default function Alerts({ alerts, onAdd, onMarkDelivered }: Props) {
                     <p className="text-xs text-muted-foreground">{a.message}</p>
                   </div>
                   {a.channel === 'simulatedWhatsApp' && (
-                    <span className="text-xs text-success">✓ Enviado via WhatsApp (simulado)</span>
+                    <span className="text-xs text-success">✓ Enviado via WhatsApp (simulação). Essa funcionalidade será automatizada futuramente.</span>
                   )}
                 </div>
               );

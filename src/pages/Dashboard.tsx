@@ -81,7 +81,7 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
             Resumo Contábil do Mês
           </h3>
           <Button asChild variant="ghost" size="sm" className="text-primary text-xs">
-            <Link to="/balancete">Ver completo →</Link>
+            <Link to="/balancete">Ver balancete →</Link>
           </Button>
         </div>
         <div className="flex gap-6 text-sm">

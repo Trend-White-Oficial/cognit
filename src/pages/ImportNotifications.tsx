@@ -42,7 +42,7 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
       setParsed(results);
       setShowPreview(true);
       setIsParsing(false);
-      toast.success(`${results.length} lançamentos identificados`);
+      toast.success(`✅ ${results.length} lançamentos prontos para conferência. Revise os dados antes de salvar.`);
     }, 600);
   };
 

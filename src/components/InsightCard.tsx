@@ -17,7 +17,7 @@ export function InsightCard({ insight }: Props) {
           <Brain className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-primary mb-1">Insight da IA</h3>
+          <h3 className="text-sm font-semibold text-primary mb-1">Análise do Persona Contábil</h3>
           <p className="text-sm text-foreground leading-relaxed">{insight}</p>
         </div>
       </div>
