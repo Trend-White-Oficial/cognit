@@ -114,7 +114,7 @@ export default function Habits({ transactions }: Props) {
       <div className="gradient-card rounded-xl p-5 border border-primary/20 shadow-gold">
         <div className="flex items-center gap-2 mb-3">
           <Brain className="h-5 w-5 text-primary" />
-          <h3 className="text-sm font-semibold text-primary">Insights da IA</h3>
+          <h3 className="text-sm font-semibold text-primary">Análise do Persona Contábil</h3>
         </div>
         <div className="space-y-2">
           {insights.map((tip, i) => (
