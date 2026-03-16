@@ -47,17 +47,17 @@ export default function TaxGuide({ transactions, onUpdate }: Props) {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-2 mb-1">
-        <h1 className="text-2xl font-bold text-foreground">Orientações de IR</h1>
+        <h1 className="text-2xl font-bold text-foreground">Orientação Fiscal</h1>
         <Tooltip>
           <TooltipTrigger>
             <HelpCircle className="h-4 w-4 text-muted-foreground" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs text-xs">
-            Estas orientações são informativas e não substituem um contador. Consulte um profissional para sua declaração.
+            ℹ️ As informações abaixo são apenas indicativas e não substituem um contador. Consulte um profissional para sua declaração de IR.
           </TooltipContent>
         </Tooltip>
       </div>
-      <p className="text-sm text-muted-foreground mb-6">Organize seus dados para a declaração de Imposto de Renda</p>
+      <p className="text-sm text-muted-foreground mb-6">Organize seus dados para a declaração de Imposto de Renda com base nos dados da Receita Federal do Brasil</p>
 
       {/* Tips */}
       <div className="space-y-3 mb-6">
