@@ -60,18 +60,17 @@ export default function TrialBalance({ transactions }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-foreground">Balancete</h1>
+            <h1 className="text-2xl font-bold text-foreground">Balancete Mensal</h1>
             <Tooltip>
               <TooltipTrigger>
                 <HelpCircle className="h-4 w-4 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent className="max-w-xs text-xs">
-                O balancete mostra o resumo de entradas e saídas por categoria no mês selecionado.
-                O resultado é calculado como Entradas − Saídas.
+                O balancete apresenta um resumo organizado das suas movimentações financeiras no período. Ele ajuda a visualizar sua saúde financeira como um contador faria.
               </TooltipContent>
             </Tooltip>
           </div>
-          <p className="text-sm text-muted-foreground">Visão contábil mensal — {monthLabel}</p>
+          <p className="text-sm text-muted-foreground">Resumo contábil — {monthLabel}</p>
         </div>
         <div className="flex gap-2">
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
