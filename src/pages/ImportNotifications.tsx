@@ -5,13 +5,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { FileText, Sparkles, Check, Loader2, Beaker } from "lucide-react";
+import { FileText, Sparkles, Check, Loader2, Beaker, Pencil } from "lucide-react";
 import { ParsedTransaction, Category, CATEGORY_LABELS, PAYMENT_METHOD_LABELS, TransactionType } from "@/lib/types";
 import { parseNotificationText } from "@/lib/notification-parser";
+import { addCategoryHint } from "@/lib/ai-classifier";
 import { toast } from "sonner";
+import EditTransactionModal from "@/components/EditTransactionModal";
 
 interface Props {
-  onConfirm: (txs: { value: number; type: TransactionType; category: Category; date: string; time?: string; description: string; descriptionRaw?: string; paymentMethod: string; method?: string; recurring: boolean; aiConfidence?: number }[]) => string[];
+  onConfirm: (txs: { value: number; type: TransactionType; category: Category; date: string; time?: string; description: string; descriptionRaw?: string; paymentMethod: string; method?: string; recurring: boolean; recurrenceHint?: string; aiConfidence?: number }[]) => string[];
   onAddNotification: (n: { source: 'manual'; rawText: string; parsedAt: string; status: 'parsed'; relatedTransactionIds: string[] }) => void;
 }
 
@@ -19,13 +21,17 @@ const EXAMPLE_TEXT = `PIX recebido de Maria Souza R$ 320,00 21/03 10:12
 Compra débito Padaria Real R$ 18,50 21/03 07:49
 Fatura cartão Nubank paga R$ 950,00 10/03
 TED recebida Salário R$ 2.800,00 05/03 08:59
-PIX enviado Academia R$ 99,90 02/03 19:10`;
+PIX enviado Academia R$ 99,90 02/03 19:10
+vivo 45, vence 23, fixa
+iFood 45
+salário 1700 05/04 09:00`;
 
 export default function ImportNotifications({ onConfirm, onAddNotification }: Props) {
   const [rawText, setRawText] = useState("");
   const [parsed, setParsed] = useState<ParsedTransaction[]>([]);
   const [isParsing, setIsParsing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [editIdx, setEditIdx] = useState<number | null>(null);
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -54,6 +60,28 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
     setParsed(prev => prev.map((p, i) => i === idx ? { ...p, type } : p));
   };
 
+  const handleEditSave = (idx: number, updated: ParsedTransaction) => {
+    const original = parsed[idx];
+    // Learn category if user changed it
+    if (original.category !== updated.category && original.description) {
+      addCategoryHint(original.description.toLowerCase(), updated.category);
+    }
+    setParsed(prev => prev.map((p, i) => i === idx ? updated : p));
+  };
+
+  const handleDuplicate = (idx: number) => {
+    setParsed(prev => {
+      const copy = { ...prev[idx] };
+      return [...prev.slice(0, idx + 1), copy, ...prev.slice(idx + 1)];
+    });
+    toast.info("Lançamento duplicado");
+  };
+
+  const handleDeleteParsed = (idx: number) => {
+    setParsed(prev => prev.filter((_, i) => i !== idx));
+    toast.info("Lançamento removido da lista");
+  };
+
   const handleConfirm = () => {
     const txs = parsed.map(p => ({
       value: p.amount,
@@ -66,8 +94,17 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
       paymentMethod: PAYMENT_METHOD_LABELS[p.method] || p.method,
       method: p.method,
       recurring: p.isRecurring,
+      recurrenceHint: p.recurrenceHint,
       aiConfidence: p.aiConfidence,
     }));
+
+    // Learn from all manual category changes
+    parsed.forEach(p => {
+      if (p.aiConfidence === 1 && p.description) {
+        addCategoryHint(p.description.toLowerCase(), p.category);
+      }
+    });
+
     const ids = onConfirm(txs);
     onAddNotification({
       source: 'manual',
@@ -112,7 +149,7 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
               </Button>
             </div>
             <Textarea
-              placeholder={`Cole aqui suas notificações bancárias.\n\nExemplos:\nPIX recebido de João Silva R$ 320,00 21/03 10:12\nCompra débito Mercado Livre R$ 89,90 23/03 18:45\nFatura cartão Inter paga R$ 760,00 10/04`}
+              placeholder={`Cole aqui suas notificações bancárias ou textos informais.\n\nExemplos:\nPIX recebido de João Silva R$ 320,00 21/03 10:12\nCompra débito Mercado Livre R$ 89,90 23/03 18:45\nvivo 45, vence 23, fixa\niFood 45\nsalário 1700 05/04 09:00`}
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               className="min-h-[200px] bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none"
@@ -146,6 +183,7 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground w-8"></TableHead>
                   <TableHead className="text-muted-foreground">Data/Hora</TableHead>
                   <TableHead className="text-muted-foreground">Descrição</TableHead>
                   <TableHead className="text-muted-foreground">Método</TableHead>
@@ -157,7 +195,10 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
               </TableHeader>
               <TableBody>
                 {parsed.map((p, i) => (
-                  <TableRow key={i} className="border-border">
+                  <TableRow key={i} className="border-border cursor-pointer hover:bg-secondary/50" onClick={() => setEditIdx(i)}>
+                    <TableCell>
+                      <Pencil className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />
+                    </TableCell>
                     <TableCell className="text-foreground text-xs">
                       {new Date(p.date + 'T12:00:00').toLocaleDateString("pt-BR")}
                       {p.time && <span className="text-muted-foreground ml-1">{p.time}</span>}
@@ -169,8 +210,8 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Select value={p.type} onValueChange={(v) => handleUpdateType(i, v as TransactionType)}>
-                        <SelectTrigger className="w-[100px] h-7 bg-secondary border-border text-xs">
+                      <Select value={p.type} onValueChange={(v) => { handleUpdateType(i, v as TransactionType); }}>
+                        <SelectTrigger className="w-[100px] h-7 bg-secondary border-border text-xs" onClick={e => e.stopPropagation()}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -181,8 +222,8 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Select value={p.category} onValueChange={(v) => handleUpdateCategory(i, v as Category)}>
-                        <SelectTrigger className="w-[120px] h-7 bg-secondary border-border text-xs">
+                      <Select value={p.category} onValueChange={(v) => { handleUpdateCategory(i, v as Category); }}>
+                        <SelectTrigger className="w-[140px] h-7 bg-secondary border-border text-xs" onClick={e => e.stopPropagation()}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -215,6 +256,18 @@ export default function ImportNotifications({ onConfirm, onAddNotification }: Pr
               Voltar e editar
             </Button>
           </div>
+
+          {editIdx !== null && (
+            <EditTransactionModal
+              transaction={parsed[editIdx]}
+              index={editIdx}
+              open={true}
+              onClose={() => setEditIdx(null)}
+              onSave={handleEditSave}
+              onDuplicate={handleDuplicate}
+              onDelete={handleDeleteParsed}
+            />
+          )}
         </motion.div>
       )}
     </div>

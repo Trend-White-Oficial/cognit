@@ -26,7 +26,7 @@ const AppLayout = () => {
         <div className="flex-1 flex flex-col">
           <header className="h-12 flex items-center border-b border-border px-2">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-            <span className="ml-3 text-xs text-muted-foreground">Contábil IA</span>
+            <span className="ml-3 text-xs text-muted-foreground">Persona Contábil</span>
           </header>
           <main className="flex-1 overflow-y-auto">
             <Routes>
@@ -42,7 +42,7 @@ const AppLayout = () => {
               <Route path="habitos" element={<Habits transactions={store.transactions} />} />
               <Route path="alertas" element={<Alerts alerts={store.alerts} onAdd={store.addAlert} onMarkDelivered={store.markAlertDelivered} />} />
               <Route path="ir" element={<TaxGuide transactions={store.transactions} onUpdate={store.updateTransaction} />} />
-              <Route path="assistente" element={<AiAssistant transactions={store.transactions} balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} />} />
+              <Route path="assistente" element={<AiAssistant transactions={store.transactions} balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} />} />
             </Routes>
           </main>
         </div>
