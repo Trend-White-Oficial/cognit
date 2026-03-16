@@ -26,8 +26,8 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
     <div className="space-y-6 p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Visão geral das suas finanças</p>
+          <h1 className="text-2xl font-bold text-foreground">Persona Contábil</h1>
+          <p className="text-sm text-muted-foreground">Organização financeira com lógica profissional, sem complicação.</p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" className="border-border text-muted-foreground hover:text-foreground">
