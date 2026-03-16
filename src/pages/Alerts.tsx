@@ -38,7 +38,7 @@ export default function Alerts({ alerts, onAdd, onMarkDelivered }: Props) {
       scheduledFor: scheduledFor || undefined,
       delivered: false,
     });
-    toast.success(channel === 'simulatedWhatsApp' ? "Alerta criado (enviado via WhatsApp simulado)" : "Alerta criado");
+    toast.success(channel === 'simulatedWhatsApp' ? "📅 Lembrete criado — Mensagem enviada pelo canal WhatsApp (simulação). Essa funcionalidade será automatizada futuramente." : "📅 Lembrete financeiro criado com sucesso");
     setTitle(""); setMessage(""); setScheduledFor(""); setShowForm(false);
   };
 
