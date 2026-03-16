@@ -21,16 +21,16 @@ export default function Habits({ transactions }: Props) {
   const insights = useMemo(() => {
     const tips: string[] = [];
     if (habits.commonPixHours.length > 0) {
-      tips.push(`Seus PIX são mais frequentes às ${habits.commonPixHours.map(h => `${h}h`).join(', ')}. Defina lembretes nesses horários para controlar gastos.`);
+      tips.push(`⏱️ Padrão identificado — A maioria dos seus PIX enviados ocorre entre ${habits.commonPixHours.map(h => `${h}h`).join(' e ')}. Esse comportamento ajuda a IA a organizar melhor seus lançamentos.`);
     }
     if (habits.avgPixAmount > 0) {
-      tips.push(`Seu PIX médio é de ${fmt(habits.avgPixAmount)}. Considere estabelecer um limite diário.`);
+      tips.push(`💰 Valor médio de PIX — Suas transferências PIX têm valor médio de ${fmt(habits.avgPixAmount)}. Acompanhar esse indicador ajuda a identificar variações incomuns.`);
     }
     const busiestDay = Object.entries(habits.weeklyPattern).sort((a, b) => b[1] - a[1])[0];
     if (busiestDay && busiestDay[1] > 0) {
-      tips.push(`${busiestDay[0]} é o dia com mais transações. Planeje seus gastos com antecedência.`);
+      tips.push(`🔍 Comportamento semanal — Seus gastos apresentam maior frequência às ${busiestDay[0]}s. Esse padrão ajuda a planejar com antecedência.`);
     }
-    if (tips.length === 0) tips.push("Registre mais transações para que a IA identifique seus padrões financeiros.");
+    if (tips.length === 0) tips.push("📋 Registre mais transações para que o Persona Contábil identifique seus padrões financeiros.");
     return tips;
   }, [habits]);
 
