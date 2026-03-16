@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, Table2, Target, BotMessageSquare, FileText, Landmark } from "lucide-react";
+import { LayoutDashboard, PlusCircle, FileText, Table2, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -13,20 +13,27 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const items = [
+const mainItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Importar", url: "/importar", icon: Import },
   { title: "Registrar", url: "/registrar", icon: PlusCircle },
-  { title: "Planilha", url: "/planilha", icon: Table2 },
+  { title: "Lançamentos", url: "/lancamentos", icon: Receipt },
   { title: "Planejamento", url: "/planejamento", icon: FileText },
+  { title: "Balancete", url: "/balancete", icon: BarChart3 },
+];
+
+const toolItems = [
   { title: "Dívidas", url: "/dividas", icon: Landmark },
   { title: "Metas", url: "/metas", icon: Target },
+  { title: "Hábitos", url: "/habitos", icon: TrendingUp },
+  { title: "Alertas", url: "/alertas", icon: Bell },
+  { title: "IR", url: "/ir", icon: Shield },
   { title: "Assistente IA", url: "/assistente", icon: BotMessageSquare },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
 
   return (
     <Sidebar collapsible="icon">
@@ -34,26 +41,42 @@ export function AppSidebar() {
         <div className="p-4 mb-2">
           {!collapsed && (
             <h1 className="text-lg font-bold text-primary tracking-tight">
-              Custeamento<span className="text-foreground"> Social</span>
+              Contábil<span className="text-foreground"> IA</span>
             </h1>
           )}
-          {collapsed && <span className="text-primary font-bold text-xl">C$</span>}
+          {collapsed && <span className="text-primary font-bold text-xl">C</span>}
         </div>
+
         <SidebarGroup>
           <SidebarGroupLabel className="text-muted-foreground text-xs uppercase tracking-widest">
-            {!collapsed && "Menu"}
+            {!collapsed && "Principal"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/"}
-                      className="hover:bg-muted/50 transition-colors"
-                      activeClassName="bg-primary/10 text-primary font-medium"
-                    >
+                    <NavLink to={item.url} end={item.url === "/"} className="hover:bg-muted/50 transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-muted-foreground text-xs uppercase tracking-widest">
+            {!collapsed && "Ferramentas"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {toolItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} end className="hover:bg-muted/50 transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
