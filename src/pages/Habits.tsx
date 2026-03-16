@@ -36,8 +36,8 @@ export default function Habits({ transactions }: Props) {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Hábitos Financeiros</h1>
-      <p className="text-sm text-muted-foreground mb-6">Padrões detectados pela IA com base nas suas transações</p>
+      <h1 className="text-2xl font-bold text-foreground mb-1">Comportamento Financeiro</h1>
+      <p className="text-sm text-muted-foreground mb-6">Padrões identificados pela IA para organizar melhor seus lançamentos</p>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
