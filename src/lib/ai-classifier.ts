@@ -73,7 +73,7 @@ const KEYWORD_MAP: Record<string, Category> = {
   dentista: 'saude',
   consulta: 'saude',
   exame: 'saude',
-  plano de saúde: 'saude',
+  'plano de saúde': 'saude',
 
   // Educação
   curso: 'educacao',
