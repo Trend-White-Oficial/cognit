@@ -14,12 +14,37 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 };
 
 export type Category =
-  | 'salario' | 'vendas_servicos' | 'renda_extra' | 'rendimentos_financeiros'
-  | 'reembolsos' | 'transferencias_recebidas' | 'outros_recebimentos'
-  | 'moradia' | 'telecomunicacoes' | 'energia' | 'agua_gas' | 'alimentacao'
-  | 'transporte' | 'saude' | 'educacao' | 'lazer' | 'cartao_credito'
-  | 'impostos_taxas' | 'transferencias_enviadas' | 'familia' | 'assinaturas'
-  | 'investimentos' | 'outros';
+  // RECEITAS
+  | 'salario'
+  | 'pro_labore'
+  | 'vendas'
+  | 'servicos'
+  | 'vendas_servicos' // compat (legado)
+  | 'renda_extra'
+  | 'rendimentos_financeiros'
+  | 'reembolsos'
+  | 'transferencias_recebidas'
+  | 'outros_recebimentos'
+
+  // DESPESAS
+  | 'moradia'
+  | 'alimentacao'
+  | 'transporte'
+  | 'telecomunicacoes'
+  | 'energia'
+  | 'agua_gas'
+  | 'educacao'
+  | 'saude'
+  | 'academia'
+  | 'lazer'
+  | 'assinaturas'
+  | 'cartao_credito'
+  | 'impostos'
+  | 'impostos_taxas' // compat (legado)
+  | 'familia'
+  | 'investimentos'
+  | 'transferencias_enviadas'
+  | 'outros';
 
 export type CategoryKind = 'income' | 'expense';
 
@@ -33,6 +58,9 @@ export interface CategoryMeta {
 
 export const CATEGORY_META: Record<Category, CategoryMeta> = {
   salario:                 { label: 'Salário / Rendimentos',        kind: 'income',  color: '#22C55E', icon: '💰', description: 'Salário, pró-labore, folha de pagamento' },
+  pro_labore:              { label: 'Pró‑labore',                   kind: 'income',  color: '#16A34A', icon: '🧾', description: 'Pró‑labore e retiradas' },
+  vendas:                  { label: 'Vendas',                       kind: 'income',  color: '#34D399', icon: '🛒', description: 'Receitas de vendas de produtos' },
+  servicos:                { label: 'Serviços',                     kind: 'income',  color: '#2DD4BF', icon: '🧰', description: 'Receitas de prestação de serviços' },
   vendas_servicos:         { label: 'Vendas / Serviços',            kind: 'income',  color: '#34D399', icon: '🛒', description: 'Vendas de produtos ou prestação de serviços' },
   renda_extra:             { label: 'Renda Extra',                  kind: 'income',  color: '#6EE7B7', icon: '⭐', description: 'Freelas, bicos, premiações' },
   rendimentos_financeiros: { label: 'Rendimentos Financeiros',      kind: 'income',  color: '#10B981', icon: '📈', description: 'Juros, CDI, dividendos' },
@@ -46,9 +74,11 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
   alimentacao:             { label: 'Alimentação',                  kind: 'expense', color: '#4ADE80', icon: '🍽️', description: 'Mercado, restaurantes, delivery' },
   transporte:              { label: 'Transporte',                   kind: 'expense', color: '#60A5FA', icon: '🚗', description: 'Combustível, apps, manutenção' },
   saude:                   { label: 'Saúde / Academia',             kind: 'expense', color: '#FB923C', icon: '🏥' },
+  academia:                { label: 'Academia',                     kind: 'expense', color: '#FDBA74', icon: '🏋️', description: 'Academia e atividades físicas' },
   educacao:                { label: 'Educação',                     kind: 'expense', color: '#A78BFA', icon: '📚' },
   lazer:                   { label: 'Lazer',                        kind: 'expense', color: '#F472B6', icon: '🎬', description: 'Cinema, viagens, entretenimento' },
   cartao_credito:          { label: 'Cartão de Crédito',            kind: 'expense', color: '#EF4444', icon: '💳', description: 'Faturas de cartão' },
+  impostos:                { label: 'Impostos',                     kind: 'expense', color: '#F87171', icon: '🏛️', description: 'Impostos em geral' },
   impostos_taxas:          { label: 'Impostos / Taxas',             kind: 'expense', color: '#F87171', icon: '🏛️' },
   transferencias_enviadas: { label: 'Transferências Enviadas',      kind: 'expense', color: '#94A3B8', icon: '📤', description: 'Transferências na mesma titularidade não afetam DRE' },
   familia:                 { label: 'Família',                      kind: 'expense', color: '#F9A8D4', icon: '👨‍👩‍👧', description: 'Mesada, apoio, despesas familiares' },
@@ -237,6 +267,9 @@ export const BALANCE_GROUP_LABELS: Record<BalanceGroup, string> = {
 
 export const DEFAULT_DRE_MAPPING: Record<Category, DREGroup> = {
   salario: 'receita_bruta',
+  pro_labore: 'receita_bruta',
+  vendas: 'receita_bruta',
+  servicos: 'receita_bruta',
   vendas_servicos: 'receita_bruta',
   renda_extra: 'outras_receitas_despesas',
   rendimentos_financeiros: 'outras_receitas_despesas',
@@ -250,9 +283,11 @@ export const DEFAULT_DRE_MAPPING: Record<Category, DREGroup> = {
   alimentacao: 'despesa_operacional',
   transporte: 'despesa_operacional',
   saude: 'despesa_operacional',
+  academia: 'despesa_operacional',
   educacao: 'despesa_operacional',
   lazer: 'despesa_operacional',
   cartao_credito: 'despesa_operacional',
+  impostos: 'deducoes',
   impostos_taxas: 'deducoes',
   transferencias_enviadas: 'outras_receitas_despesas',
   familia: 'despesa_operacional',

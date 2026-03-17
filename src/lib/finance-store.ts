@@ -1,5 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Transaction, FinancialGoal, Category, Debt, DebtStatus, Alert, NotificationRecord, Account, InvestmentPosition, InvestmentTransaction, Institution, Connector, ChatMessage } from './types';
+
+type PersistedFinanceState = {
+  transactions: Transaction[];
+  goals: FinancialGoal[];
+  debts: Debt[];
+  alerts: Alert[];
+  chatMessages: ChatMessage[];
+};
+
+const STORAGE_KEY = 'cognit_finance_state_v1';
+
+function loadPersistedState(): Partial<PersistedFinanceState> | null {
+  try {
+    if (typeof window === 'undefined') return null;
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Partial<PersistedFinanceState>) : null;
+  } catch {
+    return null;
+  }
+}
+
+function savePersistedState(state: PersistedFinanceState) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // ignore storage quota / privacy mode errors
+  }
+}
 
 const SAMPLE_TRANSACTIONS: Transaction[] = [
   { id: '1', value: 5000, type: 'income', category: 'salario', date: '2026-03-01', time: '08:59', description: 'Salário', paymentMethod: 'Transferência', method: 'ted', recurring: true, aiConfidence: 0.95 },
@@ -46,20 +74,41 @@ const SAMPLE_INSTITUTIONS: Institution[] = [
 ];
 
 export function useFinanceStore() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [goals, setGoals] = useState<FinancialGoal[]>([]);
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const persisted = loadPersistedState();
+
+  const [transactions, setTransactions] = useState<Transaction[]>(() => persisted?.transactions ?? []);
+  const [goals, setGoals] = useState<FinancialGoal[]>(() => persisted?.goals ?? []);
+  const [debts, setDebts] = useState<Debt[]>(() => persisted?.debts ?? []);
+  const [alerts, setAlerts] = useState<Alert[]>(() => persisted?.alerts ?? []);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [investmentPositions, setInvestmentPositions] = useState<InvestmentPosition[]>([]);
   const [investmentTransactions, setInvestmentTransactions] = useState<InvestmentTransaction[]>([]);
   const [institutions] = useState<Institution[]>(SAMPLE_INSTITUTIONS);
   const [connectors, setConnectors] = useState<Connector[]>([]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: '0', role: 'assistant', content: "Olá! Sou o Cognit, seu assistente financeiro inteligente.\n\nPosso ajudar a registrar entradas, saídas, dívidas, metas e analisar seus relatórios.\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45, vence 23\"\n• \"registrar dívida banco inter 760\"\n• \"adicionar meta reserva 3000\"", createdAt: new Date().toISOString() },
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
+    () =>
+      persisted?.chatMessages ?? [
+        {
+          id: '0',
+          role: 'assistant',
+          content:
+            "Olá! Sou o Cognit, seu assistente financeiro inteligente.\n\nPosso ajudar a registrar entradas, saídas, dívidas, metas e analisar seus relatórios.\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45, vence 23\"\n• \"registrar dívida banco inter 760\"\n• \"adicionar meta reserva 3000\"",
+          createdAt: new Date().toISOString(),
+        },
+      ]
+  );
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+
+  useEffect(() => {
+    savePersistedState({
+      transactions,
+      goals,
+      debts,
+      alerts,
+      chatMessages,
+    });
+  }, [transactions, goals, debts, alerts, chatMessages]);
 
   const addTransaction = useCallback((t: Omit<Transaction, 'id'>) => {
     setTransactions(prev => [{ ...t, id: crypto.randomUUID() }, ...prev]);
