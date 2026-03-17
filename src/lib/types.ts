@@ -14,31 +14,12 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 };
 
 export type Category =
-  // Income categories
-  | 'salario'
-  | 'vendas_servicos'
-  | 'renda_extra'
-  | 'rendimentos_financeiros'
-  | 'reembolsos'
-  | 'transferencias_recebidas'
-  | 'outros_recebimentos'
-  // Expense categories
-  | 'moradia'
-  | 'telecomunicacoes'
-  | 'energia'
-  | 'agua_gas'
-  | 'alimentacao'
-  | 'transporte'
-  | 'saude'
-  | 'educacao'
-  | 'lazer'
-  | 'cartao_credito'
-  | 'impostos_taxas'
-  | 'transferencias_enviadas'
-  | 'familia'
-  | 'assinaturas'
-  | 'investimentos'
-  | 'outros';
+  | 'salario' | 'vendas_servicos' | 'renda_extra' | 'rendimentos_financeiros'
+  | 'reembolsos' | 'transferencias_recebidas' | 'outros_recebimentos'
+  | 'moradia' | 'telecomunicacoes' | 'energia' | 'agua_gas' | 'alimentacao'
+  | 'transporte' | 'saude' | 'educacao' | 'lazer' | 'cartao_credito'
+  | 'impostos_taxas' | 'transferencias_enviadas' | 'familia' | 'assinaturas'
+  | 'investimentos' | 'outros';
 
 export type CategoryKind = 'income' | 'expense';
 
@@ -51,7 +32,6 @@ export interface CategoryMeta {
 }
 
 export const CATEGORY_META: Record<Category, CategoryMeta> = {
-  // Income
   salario:                 { label: 'Salário / Rendimentos',        kind: 'income',  color: '#22C55E', icon: '💰', description: 'Salário, pró-labore, folha de pagamento' },
   vendas_servicos:         { label: 'Vendas / Serviços',            kind: 'income',  color: '#34D399', icon: '🛒', description: 'Vendas de produtos ou prestação de serviços' },
   renda_extra:             { label: 'Renda Extra',                  kind: 'income',  color: '#6EE7B7', icon: '⭐', description: 'Freelas, bicos, premiações' },
@@ -59,9 +39,8 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
   reembolsos:              { label: 'Reembolsos',                   kind: 'income',  color: '#A7F3D0', icon: '🔄', description: 'Devoluções e reembolsos recebidos' },
   transferencias_recebidas:{ label: 'Transferências Recebidas',     kind: 'income',  color: '#6EE7B7', icon: '📥', description: 'Transferências na mesma titularidade não afetam DRE' },
   outros_recebimentos:     { label: 'Outros Recebimentos',          kind: 'income',  color: '#86EFAC', icon: '📋' },
-  // Expense
   moradia:                 { label: 'Moradia',                      kind: 'expense', color: '#D4AF37', icon: '🏠', description: 'Aluguel, condomínio' },
-  telecomunicacoes:        { label: 'Telecomunicações',             kind: 'expense', color: '#38BDF8', icon: '📱', description: 'Vivo, Claro, TIM, Internet' },
+  telecomunicacoes:        { label: 'Telecomunicações',             kind: 'expense', color: '#38BDF8', icon: '📱', description: 'Vivo, Claro, TIM, Oi, Internet' },
   energia:                 { label: 'Energia',                      kind: 'expense', color: '#FBBF24', icon: '⚡', description: 'Conta de luz' },
   agua_gas:                { label: 'Água / Gás',                   kind: 'expense', color: '#67E8F9', icon: '💧', description: 'Conta de água e gás' },
   alimentacao:             { label: 'Alimentação',                  kind: 'expense', color: '#4ADE80', icon: '🍽️', description: 'Mercado, restaurantes, delivery' },
@@ -78,7 +57,6 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
   outros:                  { label: 'Outros',                       kind: 'expense', color: '#94A3B8', icon: '📦' },
 };
 
-// Backwards-compatible flat label map
 export const CATEGORY_LABELS: Record<Category, string> = Object.fromEntries(
   Object.entries(CATEGORY_META).map(([k, v]) => [k, v.label])
 ) as Record<Category, string>;
@@ -178,6 +156,11 @@ export interface Debt {
   totalValue: number;
   date: string;
   status: DebtStatus;
+  source?: 'manual' | 'simulado';
+  creditor?: string;
+  debtType?: string;
+  originalValue?: number;
+  cpfHash?: string;
 }
 
 export const DEBT_STATUS_LABELS: Record<DebtStatus, string> = {
@@ -235,7 +218,6 @@ export type TaxTip = {
   severity: AlertSeverity;
 };
 
-// DRE groups
 export type DREGroup = 'receita_bruta' | 'deducoes' | 'custos' | 'despesa_operacional' | 'outras_receitas_despesas';
 export const DRE_GROUP_LABELS: Record<DREGroup, string> = {
   receita_bruta: 'Receita Bruta',
@@ -245,7 +227,6 @@ export const DRE_GROUP_LABELS: Record<DREGroup, string> = {
   outras_receitas_despesas: 'Outras Receitas / Despesas',
 };
 
-// Balance sheet groups
 export type BalanceGroup = 'ativo_circulante' | 'ativo_nao_circulante' | 'passivo_circulante' | 'passivo_nao_circulante';
 export const BALANCE_GROUP_LABELS: Record<BalanceGroup, string> = {
   ativo_circulante: 'Ativo Circulante',
@@ -254,7 +235,6 @@ export const BALANCE_GROUP_LABELS: Record<BalanceGroup, string> = {
   passivo_nao_circulante: 'Passivo Não Circulante',
 };
 
-// Default mapping category -> DRE group
 export const DEFAULT_DRE_MAPPING: Record<Category, DREGroup> = {
   salario: 'receita_bruta',
   vendas_servicos: 'receita_bruta',
@@ -280,3 +260,58 @@ export const DEFAULT_DRE_MAPPING: Record<Category, DREGroup> = {
   investimentos: 'outras_receitas_despesas',
   outros: 'despesa_operacional',
 };
+
+// ── Investment types ──
+export type AssetClass = 'acao' | 'fii' | 'renda_fixa' | 'fundo' | 'etf' | 'cripto';
+export const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
+  acao: 'Ações', fii: 'FIIs', renda_fixa: 'Renda Fixa', fundo: 'Fundos', etf: 'ETFs', cripto: 'Cripto',
+};
+export const ASSET_CLASS_COLORS: Record<AssetClass, string> = {
+  acao: '#60A5FA', fii: '#34D399', renda_fixa: '#FBBF24', fundo: '#A78BFA', etf: '#F472B6', cripto: '#FB923C',
+};
+
+export interface InvestmentPosition {
+  id: string;
+  institutionId: string;
+  ticker: string;
+  assetClass: AssetClass;
+  quantity: number;
+  averagePrice: number;
+  currentValue: number;
+  updatedAt: string;
+}
+
+export interface InvestmentTransaction {
+  id: string;
+  positionId?: string;
+  ticker: string;
+  assetClass: AssetClass;
+  type: 'buy' | 'sell' | 'deposit' | 'withdrawal';
+  quantity: number;
+  price: number;
+  date: string;
+  institutionId: string;
+}
+
+export interface Institution {
+  id: string;
+  name: string;
+  type: 'bank' | 'broker';
+  logoUrl?: string;
+  status: 'em_construcao' | 'simulado' | 'ativo';
+}
+
+export interface Connector {
+  id: string;
+  institutionId: string;
+  kind: 'bank' | 'broker';
+  status: 'em_construcao' | 'simulado' | 'ativo';
+  createdAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  createdAt: string;
+}
