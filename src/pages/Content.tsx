@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 const sections = [
   { title: 'Blog', icon: BookOpen, description: 'Artigos sobre finanças pessoais, contabilidade e investimentos.', status: 'Em construção' },
   { title: 'Fórum', icon: Users, description: 'Comunidade para troca de experiências e dúvidas financeiras.', status: 'Em construção' },
-  { title: 'Site', icon: Globe, description: 'Página institucional do Persona Contábil.', status: 'Em construção' },
+  { title: 'Site', icon: Globe, description: 'Página institucional do Cognit.', status: 'Em construção' },
 ];
 
 const socialLinks = [

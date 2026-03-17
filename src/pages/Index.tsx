@@ -51,7 +51,9 @@ const AppLayout = () => {
         <div className="flex-1 flex flex-col">
           <header className="h-12 flex items-center border-b border-border px-2">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-            <span className="ml-3 text-xs text-muted-foreground">Persona Contábil</span>
+            <span className="ml-3 text-xs font-medium text-muted-foreground">
+              Cognit
+            </span>
             <Button variant="ghost" size="icon" className="ml-auto h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setTourOpen(true)}>
               <HelpCircle className="h-4 w-4" />
             </Button>

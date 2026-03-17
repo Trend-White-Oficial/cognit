@@ -6,7 +6,7 @@ const pages: Record<string, { title: string; icon: typeof Shield; content: strin
   privacidade: {
     title: 'Política de Privacidade',
     icon: Shield,
-    content: `## Política de Privacidade — Persona Contábil
+    content: `## Política de Privacidade — Cognit
 
 **Última atualização:** Março de 2026
 
@@ -37,15 +37,15 @@ Para dúvidas sobre privacidade, entre em contato pelo suporte da plataforma.
   termos: {
     title: 'Termos de Uso',
     icon: FileText,
-    content: `## Termos de Uso — Persona Contábil
+    content: `## Termos de Uso — Cognit
 
 **Última atualização:** Março de 2026
 
 ### 1. Aceitação
-Ao utilizar o Persona Contábil, você concorda com estes termos.
+Ao utilizar o Cognit, você concorda com estes termos.
 
 ### 2. Serviço
-O Persona Contábil é uma ferramenta de organização financeira pessoal com caráter orientativo. **Não substituímos assessoria contábil, financeira ou jurídica profissional.**
+O Cognit é uma ferramenta de organização financeira pessoal com caráter orientativo. **Não substituímos assessoria contábil, financeira ou jurídica profissional.**
 
 ### 3. Responsabilidades do Usuário
 - Fornecer informações corretas
@@ -66,12 +66,12 @@ Podemos alterar estes termos com aviso prévio de 30 dias.
   lgpd: {
     title: 'LGPD — Proteção de Dados',
     icon: Lock,
-    content: `## Lei Geral de Proteção de Dados (LGPD) — Persona Contábil
+    content: `## Lei Geral de Proteção de Dados (LGPD) — Cognit
 
 **Última atualização:** Março de 2026
 
 ### Base Legal
-O tratamento de dados pessoais pelo Persona Contábil segue a Lei nº 13.709/2018 (LGPD), utilizando como bases legais:
+O tratamento de dados pessoais pelo Cognit segue a Lei nº 13.709/2018 (LGPD), utilizando como bases legais:
 - **Consentimento** (Art. 7º, I) — para dados sensíveis como CPF
 - **Execução de contrato** (Art. 7º, V) — para dados necessários ao serviço
 - **Legítimo interesse** (Art. 7º, IX) — para melhorias do serviço

@@ -30,7 +30,7 @@ export default function Habits({ transactions }: Props) {
     if (busiestDay && busiestDay[1] > 0) {
       tips.push(`🔍 Comportamento semanal — Seus gastos apresentam maior frequência às ${busiestDay[0]}s. Esse padrão ajuda a planejar com antecedência.`);
     }
-    if (tips.length === 0) tips.push("📋 Registre mais transações para que o Persona Contábil identifique seus padrões financeiros.");
+    if (tips.length === 0) tips.push("📋 Registre mais transações para que o Cognit identifique seus padrões financeiros.");
     return tips;
   }, [habits]);
 
@@ -114,7 +114,7 @@ export default function Habits({ transactions }: Props) {
       <div className="gradient-card rounded-xl p-5 border border-primary/20 shadow-gold">
         <div className="flex items-center gap-2 mb-3">
           <Brain className="h-5 w-5 text-primary" />
-          <h3 className="text-sm font-semibold text-primary">Análise do Persona Contábil</h3>
+          <h3 className="text-sm font-semibold text-primary">Análise do Cognit</h3>
         </div>
         <div className="space-y-2">
           {insights.map((tip, i) => (

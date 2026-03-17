@@ -46,10 +46,10 @@ const SAMPLE_INSTITUTIONS: Institution[] = [
 ];
 
 export function useFinanceStore() {
-  const [transactions, setTransactions] = useState<Transaction[]>(SAMPLE_TRANSACTIONS);
-  const [goals, setGoals] = useState<FinancialGoal[]>(SAMPLE_GOALS);
-  const [debts, setDebts] = useState<Debt[]>(SAMPLE_DEBTS);
-  const [alerts, setAlerts] = useState<Alert[]>(SAMPLE_ALERTS);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [goals, setGoals] = useState<FinancialGoal[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [investmentPositions, setInvestmentPositions] = useState<InvestmentPosition[]>([]);
@@ -57,7 +57,7 @@ export function useFinanceStore() {
   const [institutions] = useState<Institution[]>(SAMPLE_INSTITUTIONS);
   const [connectors, setConnectors] = useState<Connector[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: '0', role: 'assistant', content: "Olá! Sou o Persona Contábil, seu assistente financeiro. Pergunte sobre suas finanças ou registre lançamentos.\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45, vence 23, fixa\"\n• \"registrar dívida: banco inter 760 vence 10/04\"\n• \"adicionar meta: reserva 3000 até 12/2025\"", createdAt: new Date().toISOString() },
+    { id: '0', role: 'assistant', content: "Olá! Sou o Cognit, seu assistente financeiro inteligente.\n\nPosso ajudar a registrar entradas, saídas, dívidas, metas e analisar seus relatórios.\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45, vence 23\"\n• \"registrar dívida banco inter 760\"\n• \"adicionar meta reserva 3000\"", createdAt: new Date().toISOString() },
   ]);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 

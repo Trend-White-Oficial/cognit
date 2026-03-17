@@ -216,7 +216,7 @@ export default function AiAssistant(props: Props) {
     <div className="p-6 max-w-2xl mx-auto flex flex-col h-[calc(100vh-4rem)]">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Persona Contábil — Assistente</h1>
+          <h1 className="text-2xl font-bold text-foreground">Cognit — Assistente</h1>
           <p className="text-sm text-muted-foreground">Chat único para finanças. Registre, consulte e organize.</p>
         </div>
         <Button variant="ghost" size="sm" onClick={props.onOpenTour} className="text-muted-foreground text-xs">
