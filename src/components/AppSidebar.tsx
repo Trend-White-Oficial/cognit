@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings, HelpCircle } from "lucide-react";
+import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -41,6 +41,7 @@ const toolItems = [
 const otherItems = [
   { title: "Assistente IA", url: "/assistente", icon: BotMessageSquare },
   { title: "Conteúdos", url: "/conteudos", icon: BookOpen },
+  { title: "Configurações", url: "/configuracoes", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -76,7 +77,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div>
               <h1 className="text-lg font-bold text-primary tracking-tight">
-                Persona<span className="text-foreground"> Contábil</span>
+                Cognit
               </h1>
               <p className="text-[10px] text-muted-foreground leading-tight">Inteligência financeira pessoal</p>
             </div>

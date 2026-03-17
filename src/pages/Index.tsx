@@ -28,6 +28,7 @@ import Investments from "./Investments";
 import Content from "./Content";
 import Legal from "./Legal";
 import AccountingSettings from "./AccountingSettings";
+import UserSettings from "./UserSettings";
 
 const AppLayout = () => {
   const store = useFinanceStore();
@@ -80,6 +81,7 @@ const AppLayout = () => {
               <Route path="ir" element={<TaxGuide transactions={store.transactions} onUpdate={store.updateTransaction} />} />
               <Route path="assistente" element={<AiAssistant transactions={store.transactions} balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} chatMessages={store.chatMessages} onAddChatMessage={store.addChatMessage} onAddDebt={store.addDebt} onAddGoal={store.addGoal} onOpenTour={() => setTourOpen(true)} />} />
               <Route path="conteudos" element={<Content />} />
+              <Route path="configuracoes" element={<UserSettings />} />
               <Route path="legal/:page" element={<Legal />} />
             </Routes>
           </main>
