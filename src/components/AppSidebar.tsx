@@ -1,6 +1,5 @@
-import { LayoutDashboard, PlusCircle, FileText, Table2, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart } from "lucide-react";
+import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings, HelpCircle } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -25,15 +24,23 @@ const contabilItems = [
   { title: "Balancete", url: "/balancete", icon: BarChart3 },
   { title: "Balanço Patrimonial", url: "/balanco", icon: Scale },
   { title: "DRE", url: "/dre", icon: FileBarChart },
+  { title: "Config. Contábeis", url: "/configuracoes-contabeis", icon: Settings },
 ];
 
 const toolItems = [
   { title: "Dívidas", url: "/dividas", icon: Landmark },
+  { title: "Dívidas CPF", url: "/dividas-cpf", icon: Shield },
   { title: "Metas", url: "/metas", icon: Target },
+  { title: "Investimentos", url: "/investimentos", icon: Wallet },
+  { title: "Conexões", url: "/conexoes", icon: Link2 },
   { title: "Hábitos", url: "/habitos", icon: TrendingUp },
   { title: "Alertas", url: "/alertas", icon: Bell },
   { title: "IR", url: "/ir", icon: Shield },
+];
+
+const otherItems = [
   { title: "Assistente IA", url: "/assistente", icon: BotMessageSquare },
+  { title: "Conteúdos", url: "/conteudos", icon: BookOpen },
 ];
 
 export function AppSidebar() {
@@ -80,6 +87,7 @@ export function AppSidebar() {
         {renderGroup("Principal", mainItems)}
         {renderGroup("Contabilidade", contabilItems)}
         {renderGroup("Ferramentas", toolItems)}
+        {renderGroup("Outros", otherItems)}
       </SidebarContent>
     </Sidebar>
   );

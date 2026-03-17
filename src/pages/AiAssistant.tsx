@@ -1,16 +1,12 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { Transaction, Category, CATEGORY_LABELS, PAYMENT_METHOD_LABELS, TransactionType, PaymentMethod } from "@/lib/types";
+import { Transaction, Category, CATEGORY_LABELS, PAYMENT_METHOD_LABELS, TransactionType, PaymentMethod, ChatMessage, Debt, FinancialGoal } from "@/lib/types";
 import { classifyWithConfidence } from "@/lib/ai-classifier";
 import { toast } from "sonner";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
 
 interface Props {
   transactions: Transaction[];
@@ -19,13 +15,15 @@ interface Props {
   totalExpenses: number;
   expensesByCategory: Record<string, number>;
   onAddTransaction: (t: Omit<Transaction, 'id'>) => void;
+  chatMessages: ChatMessage[];
+  onAddChatMessage: (msg: Omit<ChatMessage, 'id' | 'createdAt'>) => void;
+  onAddDebt: (d: Omit<Debt, 'id'>) => void;
+  onAddGoal: (g: Omit<FinancialGoal, 'id'>) => void;
+  onOpenTour: () => void;
 }
 
-// ─── Parse a chat command into a transaction ─────────────────────────
 function parseChatCommand(text: string): { value: number; type: TransactionType; description: string; category: Category; method: PaymentMethod; date: string; time: string } | null {
   const lower = text.toLowerCase();
-
-  // Extract amount
   const amtMatch = text.match(/R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?)/i) ||
     text.match(/(\d{1,3}(?:\.\d{3})*,\d{2})/) ||
     text.match(/\b(\d+(?:[.,]\d+)?)\b/);
@@ -33,15 +31,10 @@ function parseChatCommand(text: string): { value: number; type: TransactionType;
   const value = parseFloat(amtMatch[1].replace(/\./g, '').replace(',', '.'));
   if (!value || value <= 0) return null;
 
-  // Detect type
   let type: TransactionType = 'expense';
-  if (/\b(recebi|salário|salario|pix\s*recebido|pagamento|entrou|entrada|rendimento|pro\s*labore|freelance)\b/.test(lower)) {
-    type = 'income';
-  } else if (/\b(paguei|pago|comprei|gastei|compra|assinatura|mensalidade|pix\s*enviado|fatura|conta|débito|debito)\b/.test(lower)) {
-    type = 'expense';
-  }
+  if (/\b(recebi|salário|salario|pix\s*recebido|pagamento|entrou|entrada|rendimento|pro\s*labore|freelance)\b/.test(lower)) type = 'income';
+  else if (/\b(paguei|pago|comprei|gastei|compra|assinatura|mensalidade|pix\s*enviado|fatura|conta|débito|debito)\b/.test(lower)) type = 'expense';
 
-  // Detect method
   let method: PaymentMethod = 'unknown';
   if (lower.includes('pix')) method = 'pix';
   else if (lower.includes('ted')) method = 'ted';
@@ -50,7 +43,6 @@ function parseChatCommand(text: string): { value: number; type: TransactionType;
   else if (lower.includes('boleto')) method = 'boleto';
   else if (lower.includes('dinheiro')) method = 'cash';
 
-  // Extract date
   const now = new Date();
   let date = now.toISOString().split('T')[0];
   const dm1 = text.match(/(\d{2})\/(\d{2})\/(\d{4})/);
@@ -58,12 +50,10 @@ function parseChatCommand(text: string): { value: number; type: TransactionType;
   if (dm1) date = `${dm1[3]}-${dm1[2]}-${dm1[1]}`;
   else if (dm2) date = `${now.getFullYear()}-${dm2[2]}-${dm2[1]}`;
 
-  // Extract time
   let time = '';
   const tm = text.match(/(\d{1,2}):(\d{2})/);
   if (tm) time = `${tm[1].padStart(2, '0')}:${tm[2]}`;
 
-  // Clean description: remove amount, date, method keywords
   let description = text
     .replace(/R\$\s*\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?/gi, '')
     .replace(/\d{2}\/\d{2}(?:\/\d{4})?/g, '')
@@ -71,121 +61,179 @@ function parseChatCommand(text: string): { value: number; type: TransactionType;
     .replace(/\b\d+(?:[.,]\d+)?\b/g, '')
     .replace(/\b(?:pix|ted|doc|débito|debito|crédito|credito|cartão|cartao|boleto|dinheiro)\b/gi, '')
     .replace(/\b(?:recebi|paguei|pago|comprei|gastei|entrou|enviado|recebido)\b/gi, '')
-    .replace(/\b(?:de|no|na|em|para|com|do|da)\b/gi, '')
-    .trim()
-    .replace(/\s+/g, ' ');
-  if (description.length > 0) {
-    description = description.charAt(0).toUpperCase() + description.slice(1);
-  }
+    .replace(/\b(?:de|no|na|em|para|com|do|da|vence|fixa|mensal)\b/gi, '')
+    .trim().replace(/\s+/g, ' ');
+  if (description.length > 0) description = description.charAt(0).toUpperCase() + description.slice(1);
   if (!description) description = type === 'income' ? 'Receita' : 'Despesa';
 
   const { category } = classifyWithConfidence(text + ' ' + description);
-
   return { value, type, description, category, method, date, time };
 }
 
-function generateResponse(question: string, props: Props): { text: string; transaction?: ReturnType<typeof parseChatCommand> } {
-  const q = question.toLowerCase();
-  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+function parseDebtCommand(text: string): { name: string; value: number; date: string } | null {
+  const lower = text.toLowerCase();
+  if (!lower.includes('dívida') && !lower.includes('divida') && !lower.includes('debt')) return null;
+  const amtMatch = text.match(/\b(\d+(?:[.,]\d+)?)\b/);
+  if (!amtMatch) return null;
+  const value = parseFloat(amtMatch[1].replace(',', '.'));
+  const now = new Date();
+  let date = now.toISOString().split('T')[0];
+  const dm = text.match(/(\d{2})\/(\d{2})/);
+  if (dm) date = `${now.getFullYear()}-${dm[2]}-${dm[1]}`;
+  const name = text.replace(/registrar\s*d[ií]vida:?\s*/i, '').replace(/\d+(?:[.,]\d+)?/g, '').replace(/vence?\s*/gi, '').replace(/\d{2}\/\d{2}/g, '').trim() || 'Dívida';
+  return { name, value, date };
+}
 
-  // Try to parse as transaction command
-  const hasActionWord = /\b(recebi|paguei|pago|comprei|gastei|salário|salario|entrou|assinatura|mensalidade|pix\s*recebido|pix\s*enviado)\b/.test(q);
-  if (hasActionWord) {
-    const parsed = parseChatCommand(question);
-    if (parsed) {
-      return { text: '', transaction: parsed };
-    }
+function parseGoalCommand(text: string): { title: string; target: number; deadline?: string } | null {
+  const lower = text.toLowerCase();
+  if (!lower.includes('meta')) return null;
+  const amtMatch = text.match(/\b(\d+(?:[.,]\d+)?)\b/);
+  if (!amtMatch) return null;
+  const target = parseFloat(amtMatch[1].replace(',', '.'));
+  const deadlineMatch = text.match(/até\s+(\d{2}\/\d{4})/i);
+  let deadline: string | undefined;
+  if (deadlineMatch) {
+    const [m, y] = deadlineMatch[1].split('/');
+    deadline = `${y}-${m}-01`;
   }
-
-  // Informational responses
-  if (q.includes("gastei") || q.includes("gasto") || q.includes("despesa")) {
-    return { text: `📊 Resumo de despesas — Suas saídas neste período totalizam ${fmt(props.totalExpenses)}. O saldo atual considerando entradas e saídas é ${fmt(props.balance)}.` };
-  }
-  if (q.includes("mais") || q.includes("categoria") || q.includes("onde")) {
-    const top = Object.entries(props.expensesByCategory).sort((a, b) => b[1] - a[1]);
-    if (top.length === 0) return { text: "Ainda não há despesas registradas. Importe notificações ou registre lançamentos para começar a análise." };
-    const topItems = top.slice(0, 3).map(([k, v]) => `${CATEGORY_LABELS[k as keyof typeof CATEGORY_LABELS] || k}: ${fmt(v)}`).join(", ");
-    return { text: `📊 Análise por categoria — Suas maiores categorias de gasto são: ${topItems}. Acompanhar essas categorias ajuda a identificar oportunidades de ajuste.` };
-  }
-  if (q.includes("economizar") || q.includes("economia") || q.includes("dica")) {
-    const top = Object.entries(props.expensesByCategory).sort((a, b) => b[1] - a[1]);
-    if (top.length > 0) {
-      return { text: `💡 Sugestão — A categoria ${CATEGORY_LABELS[top[0][0] as keyof typeof CATEGORY_LABELS]} representa sua maior despesa (${fmt(top[0][1])}). Pequenos ajustes em gastos recorrentes costumam gerar economia consistente ao longo do mês.` };
-    }
-    return { text: "📋 Registre mais transações para que o Persona Contábil possa oferecer análises personalizadas." };
-  }
-  if (q.includes("saldo") || q.includes("sobra")) {
-    return { text: `💰 Posição atual — Saldo: ${fmt(props.balance)}. Entradas no período: ${fmt(props.totalIncome)}. Saídas no período: ${fmt(props.totalExpenses)}.` };
-  }
-  return { text: "Posso te ajudar com: resumo de despesas, análise por categoria, sugestões de economia e sua posição financeira. Você também pode registrar lançamentos direto aqui — ex: \"recebi salário 1700\" ou \"paguei vivo 45\"." };
+  const title = text.replace(/adicionar\s*meta:?\s*/i, '').replace(/\d+(?:[.,]\d+)?/g, '').replace(/até\s+\d{2}\/\d{4}/gi, '').trim() || 'Meta financeira';
+  return { title, target, deadline };
 }
 
 export default function AiAssistant(props: Props) {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Olá! Sou o Persona Contábil, seu assistente de inteligência financeira. Pergunte sobre seus gastos, categorias, projeções — ou registre lançamentos direto pelo chat. 📊\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45\"\n• \"quanto gastei?\"" },
-  ]);
-  const [input, setInput] = useState("");
+  const location = useLocation();
+  const prefill = (location.state as any)?.prefill || '';
+  const [input, setInput] = useState(prefill);
+  const [awaitingType, setAwaitingType] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const send = () => {
-    if (!input.trim()) return;
-    const userMsg: Message = { role: "user", content: input };
-    const { text, transaction } = generateResponse(input, props);
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, [props.chatMessages]);
 
-    let assistantContent: string;
-    if (transaction) {
-      // Create the transaction
-      props.onAddTransaction({
-        value: transaction.value,
-        type: transaction.type,
-        category: transaction.category,
-        date: transaction.date,
-        time: transaction.time || undefined,
-        description: transaction.description,
-        paymentMethod: PAYMENT_METHOD_LABELS[transaction.method] || transaction.method,
-        method: transaction.method,
-        recurring: false,
-        aiConfidence: 0.85,
-      });
+  const send = (overrideInput?: string) => {
+    const text = overrideInput || input;
+    if (!text.trim()) return;
+    props.onAddChatMessage({ role: 'user', content: text });
 
-      const typeLabel = transaction.type === 'income' ? '📥 Receita' : transaction.type === 'expense' ? '📤 Despesa' : '🔄 Transferência';
-      const catLabel = CATEGORY_LABELS[transaction.category] || transaction.category;
-      assistantContent = `✅ Lançamento criado:\n\n${typeLabel} · ${catLabel}\n💰 ${fmt(transaction.value)}\n📅 ${new Date(transaction.date + 'T12:00:00').toLocaleDateString('pt-BR')}${transaction.time ? ' ' + transaction.time : ''}\n📝 ${transaction.description}`;
-      toast.success("Lançamento registrado pelo assistente");
-    } else {
-      assistantContent = text;
+    // Handle awaiting type answer
+    if (awaitingType) {
+      const lower = text.toLowerCase();
+      const isIncome = lower.includes('entrada') || lower.includes('receita');
+      const type = isIncome ? 'income' : 'expense';
+      const parsed = parseChatCommand(awaitingType);
+      if (parsed) {
+        parsed.type = type;
+        props.onAddTransaction({
+          value: parsed.value, type: parsed.type, category: parsed.category, date: parsed.date,
+          time: parsed.time || undefined, description: parsed.description,
+          paymentMethod: PAYMENT_METHOD_LABELS[parsed.method] || parsed.method,
+          method: parsed.method, recurring: false, aiConfidence: 0.85,
+        });
+        const label = type === 'income' ? '📥 Receita' : '📤 Despesa';
+        props.onAddChatMessage({ role: 'assistant', content: `✅ Lançamento criado:\n\n${label} · ${CATEGORY_LABELS[parsed.category]}\n💰 ${fmt(parsed.value)}\n📅 ${parsed.date}\n📝 ${parsed.description}` });
+        toast.success("Lançamento registrado");
+      }
+      setAwaitingType(null);
+      setInput("");
+      return;
     }
 
-    setMessages(prev => [...prev, userMsg, { role: "assistant", content: assistantContent }]);
+    const q = text.toLowerCase();
+
+    // Check for debt command
+    const debt = parseDebtCommand(text);
+    if (debt && debt.value > 0) {
+      props.onAddDebt({ name: debt.name, totalValue: debt.value, date: debt.date, status: 'ativa', source: 'manual' });
+      props.onAddChatMessage({ role: 'assistant', content: `✅ Dívida registrada:\n\n📋 ${debt.name}\n💰 ${fmt(debt.value)}\n📅 ${new Date(debt.date + 'T12:00:00').toLocaleDateString('pt-BR')}` });
+      toast.success("Dívida registrada");
+      setInput("");
+      return;
+    }
+
+    // Check for goal command
+    const goal = parseGoalCommand(text);
+    if (goal && goal.target > 0) {
+      props.onAddGoal({ title: goal.title, targetAmount: goal.target, currentAmount: 0, icon: '🎯', status: 'active', deadline: goal.deadline });
+      props.onAddChatMessage({ role: 'assistant', content: `✅ Meta criada:\n\n🎯 ${goal.title}\n💰 Valor-alvo: ${fmt(goal.target)}${goal.deadline ? '\n📅 Prazo: ' + new Date(goal.deadline + 'T12:00:00').toLocaleDateString('pt-BR') : ''}` });
+      toast.success("Meta criada");
+      setInput("");
+      return;
+    }
+
+    // Check for transaction command
+    const hasActionWord = /\b(recebi|paguei|pago|comprei|gastei|salário|salario|entrou|assinatura|mensalidade|pix\s*recebido|pix\s*enviado)\b/.test(q);
+    if (hasActionWord) {
+      const parsed = parseChatCommand(text);
+      if (parsed) {
+        // Check if type is ambiguous
+        const isIncome = /\b(recebi|salário|salario|pix\s*recebido|entrou|entrada|rendimento)\b/.test(q);
+        const isExpense = /\b(paguei|pago|comprei|gastei|assinatura|mensalidade|pix\s*enviado|fatura|conta)\b/.test(q);
+        if (!isIncome && !isExpense) {
+          setAwaitingType(text);
+          props.onAddChatMessage({ role: 'assistant', content: 'Isso é **Entrada** ou **Saída**?\n\nResponda "entrada" ou "saída".' });
+          setInput("");
+          return;
+        }
+
+        props.onAddTransaction({
+          value: parsed.value, type: parsed.type, category: parsed.category, date: parsed.date,
+          time: parsed.time || undefined, description: parsed.description,
+          paymentMethod: PAYMENT_METHOD_LABELS[parsed.method] || parsed.method,
+          method: parsed.method, recurring: /\b(fixa|mensal|todo\s*mês|assinatura)\b/.test(q),
+          aiConfidence: 0.85,
+        });
+        const typeLabel = parsed.type === 'income' ? '📥 Receita' : '📤 Despesa';
+        props.onAddChatMessage({ role: 'assistant', content: `✅ Lançamento criado:\n\n${typeLabel} · ${CATEGORY_LABELS[parsed.category]}\n💰 ${fmt(parsed.value)}\n📅 ${parsed.date}${parsed.time ? ' ' + parsed.time : ''}\n📝 ${parsed.description}` });
+        toast.success("Lançamento registrado");
+        setInput("");
+        return;
+      }
+    }
+
+    // Informational
+    let response: string;
+    if (q.includes("gastei") || q.includes("gasto") || q.includes("despesa")) {
+      response = `📊 Suas saídas totalizam ${fmt(props.totalExpenses)}. Saldo: ${fmt(props.balance)}.`;
+    } else if (q.includes("mais") || q.includes("categoria") || q.includes("onde")) {
+      const top = Object.entries(props.expensesByCategory).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      const items = top.map(([k, v]) => `${CATEGORY_LABELS[k as Category] || k}: ${fmt(v)}`).join(", ");
+      response = top.length ? `📊 Maiores categorias: ${items}` : "Nenhuma despesa registrada ainda.";
+    } else if (q.includes("saldo") || q.includes("sobra")) {
+      response = `💰 Saldo: ${fmt(props.balance)}. Entradas: ${fmt(props.totalIncome)}. Saídas: ${fmt(props.totalExpenses)}.`;
+    } else if (q.includes("cpf") || q.includes("serasa")) {
+      response = "Para consultar dívidas por CPF (simulado), acesse /dividas-cpf. A consulta real depende de integração com Serasa/BoaVista (em construção). Lá você dará consentimento LGPD e verá resultados simulados.";
+    } else {
+      response = "Posso ajudar com:\n• Registrar lançamentos: \"recebi salário 1700\" ou \"paguei vivo 45\"\n• Criar dívidas: \"registrar dívida: banco inter 760 vence 10/04\"\n• Criar metas: \"adicionar meta: reserva 3000 até 12/2025\"\n• Consultar saldo, gastos por categoria, sugestões";
+    }
+    props.onAddChatMessage({ role: 'assistant', content: response });
     setInput("");
   };
 
   return (
     <div className="p-6 max-w-2xl mx-auto flex flex-col h-[calc(100vh-4rem)]">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Persona Contábil — Assistente</h1>
-      <p className="text-sm text-muted-foreground mb-4">Seu assistente contábil pessoal. Pergunte sobre suas finanças ou registre lançamentos.</p>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Persona Contábil — Assistente</h1>
+          <p className="text-sm text-muted-foreground">Chat único para finanças. Registre, consulte e organize.</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={props.onOpenTour} className="text-muted-foreground text-xs">
+          <HelpCircle className="h-3.5 w-3.5 mr-1" />Tour
+        </Button>
+      </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
-        {messages.map((m, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}
-          >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+        {props.chatMessages.map((m) => (
+          <motion.div key={m.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}>
             {m.role === "assistant" && (
               <div className="gradient-gold rounded-full p-2 h-8 w-8 flex items-center justify-center shrink-0">
                 <Bot className="h-4 w-4 text-primary-foreground" />
               </div>
             )}
-            <div
-              className={`rounded-xl px-4 py-3 max-w-[80%] text-sm whitespace-pre-line ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-foreground"
-              }`}
-            >
+            <div className={`rounded-xl px-4 py-3 max-w-[80%] text-sm whitespace-pre-line ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
               {m.content}
             </div>
             {m.role === "user" && (
@@ -199,13 +247,13 @@ export default function AiAssistant(props: Props) {
 
       <div className="flex gap-2">
         <Input
-          placeholder="Pergunte sobre suas finanças ou registre: &quot;recebi salário 1700&quot;"
+          placeholder="Pergunte ou registre: &quot;recebi salário 1700&quot;"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
           className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
         />
-        <Button onClick={send} className="gradient-gold text-primary-foreground shadow-gold">
+        <Button onClick={() => send()} className="gradient-gold text-primary-foreground shadow-gold">
           <Send className="h-4 w-4" />
         </Button>
       </div>
