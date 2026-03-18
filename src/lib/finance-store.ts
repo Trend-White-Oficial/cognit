@@ -7,6 +7,7 @@ type PersistedFinanceState = {
   debts: Debt[];
   alerts: Alert[];
   chatMessages: ChatMessage[];
+  investmentPositions: InvestmentPosition[];
 };
 
 const STORAGE_KEY = 'cognit_finance_state_v1';
@@ -24,9 +25,7 @@ function loadPersistedState(): Partial<PersistedFinanceState> | null {
 function savePersistedState(state: PersistedFinanceState) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // ignore storage quota / privacy mode errors
-  }
+  } catch { /* ignore */ }
 }
 
 const SAMPLE_INSTITUTIONS: Institution[] = [
@@ -51,33 +50,22 @@ export function useFinanceStore() {
   const [alerts, setAlerts] = useState<Alert[]>(() => persisted?.alerts ?? []);
   const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [investmentPositions, setInvestmentPositions] = useState<InvestmentPosition[]>([]);
+  const [investmentPositions, setInvestmentPositions] = useState<InvestmentPosition[]>(() => persisted?.investmentPositions ?? []);
   const [investmentTransactions, setInvestmentTransactions] = useState<InvestmentTransaction[]>([]);
   const [institutions] = useState<Institution[]>(SAMPLE_INSTITUTIONS);
   const [connectors, setConnectors] = useState<Connector[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
-    () =>
-      persisted?.chatMessages ?? [
-        {
-          id: '0',
-          role: 'assistant',
-          content:
-            "Olá! Sou o Cognit, seu assistente financeiro inteligente.\n\nPosso ajudar a registrar entradas, saídas, dívidas, metas e analisar seus relatórios.\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45, vence 23\"\n• \"registrar dívida banco inter 760\"\n• \"adicionar meta reserva 3000\"",
-          createdAt: new Date().toISOString(),
-        },
-      ]
+    () => persisted?.chatMessages ?? [{
+      id: '0', role: 'assistant',
+      content: "Olá! Sou o Cognit, seu assistente financeiro inteligente.\n\nPosso ajudar a registrar entradas, saídas, dívidas, metas e analisar seus relatórios.\n\nExemplos:\n• \"recebi salário 1700\"\n• \"paguei vivo 45, vence 23\"\n• \"registrar dívida banco inter 760\"\n• \"adicionar meta reserva 3000\"",
+      createdAt: new Date().toISOString(),
+    }]
   );
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
   useEffect(() => {
-    savePersistedState({
-      transactions,
-      goals,
-      debts,
-      alerts,
-      chatMessages,
-    });
-  }, [transactions, goals, debts, alerts, chatMessages]);
+    savePersistedState({ transactions, goals, debts, alerts, chatMessages, investmentPositions });
+  }, [transactions, goals, debts, alerts, chatMessages, investmentPositions]);
 
   const addTransaction = useCallback((t: Omit<Transaction, 'id'>) => {
     setTransactions(prev => [{ ...t, id: crypto.randomUUID() }, ...prev]);
@@ -104,10 +92,7 @@ export function useFinanceStore() {
 
   const expensesByCategory = transactions
     .filter(t => t.type === 'expense')
-    .reduce((acc, t) => {
-      acc[t.category] = (acc[t.category] || 0) + t.value;
-      return acc;
-    }, {} as Record<Category, number>);
+    .reduce((acc, t) => { acc[t.category] = (acc[t.category] || 0) + t.value; return acc; }, {} as Record<Category, number>);
 
   const addGoal = useCallback((g: Omit<FinancialGoal, 'id'>) => {
     setGoals(prev => [...prev, { ...g, id: crypto.randomUUID() }]);
@@ -149,7 +134,10 @@ export function useFinanceStore() {
     setChatMessages(prev => [...prev, { ...msg, id: crypto.randomUUID(), createdAt: new Date().toISOString() }]);
   }, []);
 
-  // Simulate data for connections
+  const addInvestmentPosition = useCallback((pos: Omit<InvestmentPosition, 'id'>) => {
+    setInvestmentPositions(prev => [...prev, { ...pos, id: crypto.randomUUID() }]);
+  }, []);
+
   const simulateInstitutionData = useCallback((institutionId: string) => {
     const id = crypto.randomUUID();
     const newAccount: Account = {
@@ -167,7 +155,6 @@ export function useFinanceStore() {
     const newTxs = sampleTxs.map(t => ({ ...t, id: crypto.randomUUID() }));
     setTransactions(prev => [...newTxs, ...prev]);
 
-    // Simulate investment positions for brokers
     const inst = institutions.find(i => i.id === institutionId);
     if (inst?.type === 'broker') {
       const positions: InvestmentPosition[] = [
@@ -181,7 +168,6 @@ export function useFinanceStore() {
     setConnectors(prev => [...prev, { id: crypto.randomUUID(), institutionId, kind: inst?.type || 'bank', status: 'simulado', createdAt: new Date().toISOString() }]);
   }, [institutions]);
 
-  // Simulate CPF debt query
   const simulateCpfDebtQuery = useCallback((cpfHash: string) => {
     const simulated: Omit<Debt, 'id'>[] = [
       { name: 'Empréstimo Pessoal', totalValue: 4500, date: '2026-06-15', status: 'ativa', source: 'simulado', creditor: 'Banco Exemplo', debtType: 'empréstimo', originalValue: 5000, cpfHash },
@@ -199,7 +185,7 @@ export function useFinanceStore() {
     addGoal, updateGoal, deleteGoal, updateGoalProgress,
     addDebt, updateDebtStatus,
     addAlert, markAlertDelivered,
-    addNotification, addChatMessage,
+    addNotification, addChatMessage, addInvestmentPosition,
     simulateInstitutionData, simulateCpfDebtQuery,
     setOnboardingCompleted,
     totalIncome, totalExpenses, totalDebts, balance, expensesByCategory,

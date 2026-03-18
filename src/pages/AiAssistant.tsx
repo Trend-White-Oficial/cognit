@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, Bot, User, HelpCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { Transaction, Category, CATEGORY_LABELS, PAYMENT_METHOD_LABELS, TransactionType, PaymentMethod, ChatMessage, Debt, FinancialGoal } from "@/lib/types";
+import { Transaction, Category, PAYMENT_METHOD_LABELS, TransactionType, PaymentMethod, ChatMessage, Debt, FinancialGoal } from "@/lib/types";
+import { useCategoryStore } from "@/lib/category-store";
 import { classifyWithConfidence } from "@/lib/ai-classifier";
 import { toast } from "sonner";
 
@@ -20,6 +21,7 @@ interface Props {
   onAddDebt: (d: Omit<Debt, 'id'>) => void;
   onAddGoal: (g: Omit<FinancialGoal, 'id'>) => void;
   onOpenTour: () => void;
+  categoryStore: ReturnType<typeof useCategoryStore>;
 }
 
 function parseChatCommand(text: string): { value: number; type: TransactionType; description: string; category: Category; method: PaymentMethod; date: string; time: string } | null {
@@ -33,7 +35,6 @@ function parseChatCommand(text: string): { value: number; type: TransactionType;
 
   let type: TransactionType = 'expense';
   if (/\b(recebi|salário|salario|pix\s*recebido|pagamento|entrou|entrada|rendimento|pro\s*labore|freelance)\b/.test(lower)) type = 'income';
-  else if (/\b(paguei|pago|comprei|gastei|compra|assinatura|mensalidade|pix\s*enviado|fatura|conta|débito|debito)\b/.test(lower)) type = 'expense';
 
   let method: PaymentMethod = 'unknown';
   if (lower.includes('pix')) method = 'pix';
@@ -92,10 +93,7 @@ function parseGoalCommand(text: string): { title: string; target: number; deadli
   const target = parseFloat(amtMatch[1].replace(',', '.'));
   const deadlineMatch = text.match(/até\s+(\d{2}\/\d{4})/i);
   let deadline: string | undefined;
-  if (deadlineMatch) {
-    const [m, y] = deadlineMatch[1].split('/');
-    deadline = `${y}-${m}-01`;
-  }
+  if (deadlineMatch) { const [m, y] = deadlineMatch[1].split('/'); deadline = `${y}-${m}-01`; }
   const title = text.replace(/adicionar\s*meta:?\s*/i, '').replace(/\d+(?:[.,]\d+)?/g, '').replace(/até\s+\d{2}\/\d{4}/gi, '').trim() || 'Meta financeira';
   return { title, target, deadline };
 }
@@ -118,7 +116,6 @@ export default function AiAssistant(props: Props) {
     if (!text.trim()) return;
     props.onAddChatMessage({ role: 'user', content: text });
 
-    // Handle awaiting type answer
     if (awaitingType) {
       const lower = text.toLowerCase();
       const isIncome = lower.includes('entrada') || lower.includes('receita');
@@ -132,8 +129,9 @@ export default function AiAssistant(props: Props) {
           paymentMethod: PAYMENT_METHOD_LABELS[parsed.method] || parsed.method,
           method: parsed.method, recurring: false, aiConfidence: 0.85,
         });
+        const catLabel = props.categoryStore.getCategoryLabel(parsed.category);
         const label = type === 'income' ? '📥 Receita' : '📤 Despesa';
-        props.onAddChatMessage({ role: 'assistant', content: `✅ Lançamento criado:\n\n${label} · ${CATEGORY_LABELS[parsed.category]}\n💰 ${fmt(parsed.value)}\n📅 ${parsed.date}\n📝 ${parsed.description}` });
+        props.onAddChatMessage({ role: 'assistant', content: `✅ Lançamento criado:\n\n${label} · ${catLabel}\n💰 ${fmt(parsed.value)}\n📅 ${parsed.date}\n📝 ${parsed.description}` });
         toast.success("Lançamento registrado");
       }
       setAwaitingType(null);
@@ -143,7 +141,6 @@ export default function AiAssistant(props: Props) {
 
     const q = text.toLowerCase();
 
-    // Check for debt command
     const debt = parseDebtCommand(text);
     if (debt && debt.value > 0) {
       props.onAddDebt({ name: debt.name, totalValue: debt.value, date: debt.date, status: 'ativa', source: 'manual' });
@@ -153,7 +150,6 @@ export default function AiAssistant(props: Props) {
       return;
     }
 
-    // Check for goal command
     const goal = parseGoalCommand(text);
     if (goal && goal.target > 0) {
       props.onAddGoal({ title: goal.title, targetAmount: goal.target, currentAmount: 0, icon: '🎯', status: 'active', deadline: goal.deadline });
@@ -163,12 +159,10 @@ export default function AiAssistant(props: Props) {
       return;
     }
 
-    // Check for transaction command
     const hasActionWord = /\b(recebi|paguei|pago|comprei|gastei|salário|salario|entrou|assinatura|mensalidade|pix\s*recebido|pix\s*enviado)\b/.test(q);
     if (hasActionWord) {
       const parsed = parseChatCommand(text);
       if (parsed) {
-        // Check if type is ambiguous
         const isIncome = /\b(recebi|salário|salario|pix\s*recebido|entrou|entrada|rendimento)\b/.test(q);
         const isExpense = /\b(paguei|pago|comprei|gastei|assinatura|mensalidade|pix\s*enviado|fatura|conta)\b/.test(q);
         if (!isIncome && !isExpense) {
@@ -185,26 +179,26 @@ export default function AiAssistant(props: Props) {
           method: parsed.method, recurring: /\b(fixa|mensal|todo\s*mês|assinatura)\b/.test(q),
           aiConfidence: 0.85,
         });
+        const catLabel = props.categoryStore.getCategoryLabel(parsed.category);
         const typeLabel = parsed.type === 'income' ? '📥 Receita' : '📤 Despesa';
-        props.onAddChatMessage({ role: 'assistant', content: `✅ Lançamento criado:\n\n${typeLabel} · ${CATEGORY_LABELS[parsed.category]}\n💰 ${fmt(parsed.value)}\n📅 ${parsed.date}${parsed.time ? ' ' + parsed.time : ''}\n📝 ${parsed.description}` });
+        props.onAddChatMessage({ role: 'assistant', content: `✅ Lançamento criado:\n\n${typeLabel} · ${catLabel}\n💰 ${fmt(parsed.value)}\n📅 ${parsed.date}${parsed.time ? ' ' + parsed.time : ''}\n📝 ${parsed.description}` });
         toast.success("Lançamento registrado");
         setInput("");
         return;
       }
     }
 
-    // Informational
     let response: string;
     if (q.includes("gastei") || q.includes("gasto") || q.includes("despesa")) {
       response = `📊 Suas saídas totalizam ${fmt(props.totalExpenses)}. Saldo: ${fmt(props.balance)}.`;
     } else if (q.includes("mais") || q.includes("categoria") || q.includes("onde")) {
       const top = Object.entries(props.expensesByCategory).sort((a, b) => b[1] - a[1]).slice(0, 3);
-      const items = top.map(([k, v]) => `${CATEGORY_LABELS[k as Category] || k}: ${fmt(v)}`).join(", ");
+      const items = top.map(([k, v]) => `${props.categoryStore.getCategoryLabel(k)}: ${fmt(v)}`).join(", ");
       response = top.length ? `📊 Maiores categorias: ${items}` : "Nenhuma despesa registrada ainda.";
     } else if (q.includes("saldo") || q.includes("sobra")) {
       response = `💰 Saldo: ${fmt(props.balance)}. Entradas: ${fmt(props.totalIncome)}. Saídas: ${fmt(props.totalExpenses)}.`;
     } else if (q.includes("cpf") || q.includes("serasa")) {
-      response = "Para consultar dívidas por CPF (simulado), acesse /dividas-cpf. A consulta real depende de integração com Serasa/BoaVista (em construção). Lá você dará consentimento LGPD e verá resultados simulados.";
+      response = "Para consultar dívidas por CPF (simulado), acesse a tela Dívidas CPF. A consulta real depende de integração com serviços oficiais (em construção). Lá você dará consentimento LGPD e verá resultados simulados.";
     } else {
       response = "Posso ajudar com:\n• Registrar lançamentos: \"recebi salário 1700\" ou \"paguei vivo 45\"\n• Criar dívidas: \"registrar dívida: banco inter 760 vence 10/04\"\n• Criar metas: \"adicionar meta: reserva 3000 até 12/2025\"\n• Consultar saldo, gastos por categoria, sugestões";
     }
@@ -248,11 +242,9 @@ export default function AiAssistant(props: Props) {
       <div className="flex gap-2">
         <Input
           placeholder="Pergunte ou registre: &quot;recebi salário 1700&quot;"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          value={input} onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-        />
+          className="bg-secondary border-border text-foreground placeholder:text-muted-foreground" />
         <Button onClick={() => send()} className="gradient-gold text-primary-foreground shadow-gold">
           <Send className="h-4 w-4" />
         </Button>

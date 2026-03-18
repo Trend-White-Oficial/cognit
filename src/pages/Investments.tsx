@@ -1,16 +1,28 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { InvestmentPosition, InvestmentTransaction, ASSET_CLASS_LABELS, ASSET_CLASS_COLORS, AssetClass } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { TrendingUp, PieChart } from "lucide-react";
+import { TrendingUp, PieChart, Plus, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
   positions: InvestmentPosition[];
   investmentTransactions: InvestmentTransaction[];
+  onAddPosition?: (pos: Omit<InvestmentPosition, 'id'>) => void;
 }
 
-export default function Investments({ positions, investmentTransactions }: Props) {
+export default function Investments({ positions, investmentTransactions, onAddPosition }: Props) {
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const [addOpen, setAddOpen] = useState(false);
+  const [form, setForm] = useState({
+    ticker: '', assetClass: 'acao' as AssetClass, quantity: 0, averagePrice: 0, currentValue: 0, institutionId: 'manual',
+  });
 
   const totalInvested = useMemo(() => positions.reduce((s, p) => s + p.quantity * p.averagePrice, 0), [positions]);
   const totalCurrent = useMemo(() => positions.reduce((s, p) => s + p.currentValue, 0), [positions]);
@@ -22,20 +34,47 @@ export default function Investments({ positions, investmentTransactions }: Props
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [positions]);
 
+  const handleAdd = () => {
+    if (!form.ticker || form.quantity <= 0 || form.averagePrice <= 0) {
+      toast.error("Preencha ticker, quantidade e preço médio");
+      return;
+    }
+    if (onAddPosition) {
+      onAddPosition({
+        institutionId: form.institutionId, ticker: form.ticker.toUpperCase(), assetClass: form.assetClass,
+        quantity: form.quantity, averagePrice: form.averagePrice,
+        currentValue: form.currentValue || form.quantity * form.averagePrice,
+        updatedAt: new Date().toISOString(),
+      });
+      toast.success("Posição adicionada");
+      setAddOpen(false);
+      setForm({ ticker: '', assetClass: 'acao', quantity: 0, averagePrice: 0, currentValue: 0, institutionId: 'manual' });
+    }
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Investimentos</h1>
-      <p className="text-sm text-muted-foreground mb-6">Visão geral do seu patrimônio investido (dados simulados)</p>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-bold text-foreground">Investimentos</h1>
+        <Button size="sm" onClick={() => setAddOpen(true)} className="gradient-gold text-primary-foreground shadow-gold">
+          <Plus className="h-4 w-4 mr-1" /> Cadastrar
+        </Button>
+      </div>
+      <p className="text-sm text-muted-foreground mb-6">Gerencie seus investimentos. Cadastre manualmente ou simule via Conexões.</p>
+
+      <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-secondary/50 border border-border">
+        <AlertTriangle className="h-4 w-4 text-muted-foreground shrink-0" />
+        <p className="text-xs text-muted-foreground">B3 / Bovespa — Integração em construção. Cadastre posições manualmente ou simule via Conexões.</p>
+      </div>
 
       {positions.length === 0 ? (
         <div className="text-center py-16">
           <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">Nenhuma posição registrada.</p>
-          <p className="text-xs text-muted-foreground mt-1">Conecte uma corretora em /conexões e clique "Simular dados".</p>
+          <p className="text-xs text-muted-foreground mt-1">Clique em "Cadastrar" ou simule dados em Conexões.</p>
         </div>
       ) : (
         <>
-          {/* Summary cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
               <p className="text-xs text-muted-foreground">Patrimônio Investido</p>
@@ -51,7 +90,6 @@ export default function Investments({ positions, investmentTransactions }: Props
             </div>
           </div>
 
-          {/* Allocation */}
           <div className="gradient-card rounded-xl p-5 border border-border shadow-card mb-6">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <PieChart className="h-4 w-4 text-primary" />Alocação por Classe
@@ -71,7 +109,6 @@ export default function Investments({ positions, investmentTransactions }: Props
             </div>
           </div>
 
-          {/* Positions table */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="gradient-card rounded-xl border border-border shadow-card overflow-hidden">
             <Table>
               <TableHeader>
@@ -104,6 +141,48 @@ export default function Investments({ positions, investmentTransactions }: Props
           </motion.div>
         </>
       )}
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="bg-card border-border text-foreground max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Cadastrar Investimento</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 py-2">
+            <div>
+              <Label className="text-muted-foreground text-xs">Ticker / Nome</Label>
+              <Input value={form.ticker} onChange={e => setForm(f => ({ ...f, ticker: e.target.value }))} className="bg-secondary border-border" placeholder="Ex: PETR4, Tesouro IPCA+" />
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs">Classe</Label>
+              <Select value={form.assetClass} onValueChange={v => setForm(f => ({ ...f, assetClass: v as AssetClass }))}>
+                <SelectTrigger className="bg-secondary border-border text-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(ASSET_CLASS_LABELS).map(([k, v]) => (
+                    <SelectItem key={k} value={k}>{v}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-muted-foreground text-xs">Quantidade</Label>
+                <Input type="number" value={form.quantity || ''} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border" />
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Preço Médio (R$)</Label>
+                <Input type="number" step="0.01" value={form.averagePrice || ''} onChange={e => setForm(f => ({ ...f, averagePrice: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border" />
+              </div>
+            </div>
+            <div>
+              <Label className="text-muted-foreground text-xs">Valor Atual (R$) — opcional</Label>
+              <Input type="number" step="0.01" value={form.currentValue || ''} onChange={e => setForm(f => ({ ...f, currentValue: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border" placeholder="Se vazio, usa Qtd × PM" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button size="sm" onClick={handleAdd} className="gradient-gold text-primary-foreground shadow-gold">Cadastrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
