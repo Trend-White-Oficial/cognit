@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Transaction, Category, TransactionType, PaymentMethod, CATEGORY_META, PAYMENT_METHOD_LABELS, INCOME_CATEGORIES, EXPENSE_CATEGORIES } from "@/lib/types";
+import { Transaction, Category, TransactionType, PaymentMethod, PAYMENT_METHOD_LABELS } from "@/lib/types";
+import { useCategoryStore } from "@/lib/category-store";
 import { Save, Copy, Trash2 } from "lucide-react";
 
 interface Props {
@@ -15,9 +16,10 @@ interface Props {
   onSave: (updated: Partial<Transaction>) => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  categoryStore: ReturnType<typeof useCategoryStore>;
 }
 
-export default function EditTransactionDialog({ transaction, open, onClose, onSave, onDuplicate, onDelete }: Props) {
+export default function EditTransactionDialog({ transaction, open, onClose, onSave, onDuplicate, onDelete, categoryStore }: Props) {
   const [form, setForm] = useState({ ...transaction });
 
   const update = <K extends keyof Transaction>(key: K, value: Transaction[K]) => {
@@ -26,20 +28,14 @@ export default function EditTransactionDialog({ transaction, open, onClose, onSa
 
   const handleSave = () => {
     onSave({
-      value: form.value,
-      type: form.type,
-      category: form.category,
-      date: form.date,
-      time: form.time,
-      description: form.description,
-      method: form.method,
-      recurring: form.recurring,
-      recurrenceHint: form.recurrenceHint,
+      value: form.value, type: form.type, category: form.category, date: form.date,
+      time: form.time, description: form.description, method: form.method,
+      recurring: form.recurring, recurrenceHint: form.recurrenceHint,
     });
     onClose();
   };
 
-  const categories = form.type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const categories = form.type === 'income' ? categoryStore.incomeCategories : categoryStore.expenseCategories;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -76,43 +72,24 @@ export default function EditTransactionDialog({ transaction, open, onClose, onSa
 
           <div>
             <Label className="text-muted-foreground text-xs">Valor (R$)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={form.value}
-              onChange={(e) => update('value', parseFloat(e.target.value) || 0)}
-              className="bg-secondary border-border"
-            />
+            <Input type="number" step="0.01" value={form.value}
+              onChange={(e) => update('value', parseFloat(e.target.value) || 0)} className="bg-secondary border-border" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-muted-foreground text-xs">Data</Label>
-              <Input
-                type="date"
-                value={form.date}
-                onChange={(e) => update('date', e.target.value)}
-                className="bg-secondary border-border text-sm"
-              />
+              <Input type="date" value={form.date} onChange={(e) => update('date', e.target.value)} className="bg-secondary border-border text-sm" />
             </div>
             <div>
               <Label className="text-muted-foreground text-xs">Hora</Label>
-              <Input
-                type="time"
-                value={form.time || ''}
-                onChange={(e) => update('time', e.target.value)}
-                className="bg-secondary border-border text-sm"
-              />
+              <Input type="time" value={form.time || ''} onChange={(e) => update('time', e.target.value)} className="bg-secondary border-border text-sm" />
             </div>
           </div>
 
           <div>
             <Label className="text-muted-foreground text-xs">Descrição</Label>
-            <Input
-              value={form.description}
-              onChange={(e) => update('description', e.target.value)}
-              className="bg-secondary border-border"
-            />
+            <Input value={form.description} onChange={(e) => update('description', e.target.value)} className="bg-secondary border-border" />
           </div>
 
           <div>
@@ -120,10 +97,8 @@ export default function EditTransactionDialog({ transaction, open, onClose, onSa
             <Select value={form.category} onValueChange={(v) => update('category', v as Category)}>
               <SelectTrigger className="bg-secondary border-border text-sm"><SelectValue /></SelectTrigger>
               <SelectContent className="max-h-60">
-                {categories.map(k => (
-                  <SelectItem key={k} value={k}>
-                    {CATEGORY_META[k].icon} {CATEGORY_META[k].label}
-                  </SelectItem>
+                {categories.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.icon} {c.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -131,10 +106,7 @@ export default function EditTransactionDialog({ transaction, open, onClose, onSa
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Switch
-                checked={form.recurring}
-                onCheckedChange={(v) => update('recurring', v)}
-              />
+              <Switch checked={form.recurring} onCheckedChange={(v) => update('recurring', v)} />
               <Label className="text-muted-foreground text-xs">Recorrente</Label>
             </div>
             {form.recurring && (
