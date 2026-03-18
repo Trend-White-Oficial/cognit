@@ -91,6 +91,7 @@ const AppLayout = () => {
               <Route path="dividas-cpf" element={<DebtsCPF debts={store.debts} onAdd={store.addDebt} onUpdateStatus={store.updateDebtStatus} onSimulateCpf={store.simulateCpfDebtQuery} />} />
               <Route path="metas" element={<Goals goals={store.goals} onAdd={store.addGoal} onUpdate={store.updateGoal} onDelete={store.deleteGoal} onAddProgress={store.updateGoalProgress} />} />
               <Route path="investimentos" element={<Investments positions={store.investmentPositions} investmentTransactions={store.investmentTransactions} onAddPosition={store.addInvestmentPosition} />} />
+
               <Route path="conexoes" element={<Connections institutions={store.institutions} connectors={store.connectors} onSimulate={store.simulateInstitutionData} />} />
               <Route path="habitos" element={<Habits transactions={store.transactions} />} />
               <Route path="alertas" element={<Alerts alerts={store.alerts} onAdd={store.addAlert} onMarkDelivered={store.markAlertDelivered} />} />
