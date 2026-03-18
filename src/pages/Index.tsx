@@ -77,6 +77,7 @@ const AppLayout = () => {
             <Routes>
               <Route index element={<Dashboard balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} totalDebts={store.totalDebts} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} categoryStore={categoryStore} />} />
               <Route path="importar" element={<ImportNotifications onConfirm={store.addTransactions} onAddNotification={store.addNotification} categoryStore={categoryStore} />} />
+
               <Route path="registrar" element={<RegisterTransaction onAdd={store.addTransaction} onConfirmImport={store.addTransactions} onAddNotification={store.addNotification} categoryStore={categoryStore} />} />
               <Route path="lancamentos" element={<Transactions transactions={store.transactions} onUpdate={store.updateTransaction} onDelete={store.deleteTransaction} onAdd={store.addTransaction} categoryStore={categoryStore} />} />
               <Route path="planilha" element={<Spreadsheet transactions={store.transactions} />} />
