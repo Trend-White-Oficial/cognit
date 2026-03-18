@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Transaction, CATEGORY_LABELS, Category, PAYMENT_METHOD_LABELS, CATEGORY_META } from "@/lib/types";
+import { Transaction, Category, PAYMENT_METHOD_LABELS, CATEGORY_META } from "@/lib/types";
+import { useCategoryStore } from "@/lib/category-store";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -15,9 +16,10 @@ interface Props {
   onUpdate: (id: string, updates: Partial<Transaction>) => void;
   onDelete: (id: string) => void;
   onAdd: (t: Omit<Transaction, 'id'>) => void;
+  categoryStore: ReturnType<typeof useCategoryStore>;
 }
 
-export default function Transactions({ transactions, onUpdate, onDelete, onAdd }: Props) {
+export default function Transactions({ transactions, onUpdate, onDelete, onAdd, categoryStore }: Props) {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
@@ -55,7 +57,6 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
   };
 
   const handleSaveEdit = (id: string, updates: Partial<Transaction>) => {
-    // Learn category preference
     if (updates.category && editing) {
       const desc = updates.description || editing.description;
       const firstWord = desc.split(/\s+/)[0];
@@ -72,7 +73,6 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
       <h1 className="text-2xl font-bold text-foreground mb-1">Lançamentos</h1>
       <p className="text-sm text-muted-foreground mb-4">Confira e organize todas as suas movimentações financeiras</p>
 
-      {/* Totals */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="gradient-card rounded-xl p-3 border border-border shadow-card">
           <p className="text-xs text-muted-foreground">Entradas no Período</p>
@@ -90,13 +90,10 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <Select value={filterMonth} onValueChange={setFilterMonth}>
-          <SelectTrigger className="w-[150px] bg-secondary border-border text-foreground text-xs h-8">
-            <SelectValue placeholder="Mês" />
-          </SelectTrigger>
-          <SelectContent>
+          <SelectTrigger className="w-[150px] bg-secondary border-border text-foreground text-xs h-8"><SelectValue placeholder="Mês" /></SelectTrigger>
+          <SelectContent className="max-h-60">
             <SelectItem value="all">Todos os meses</SelectItem>
             {months.map(m => (
               <SelectItem key={m} value={m}>
@@ -107,21 +104,17 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
         </Select>
 
         <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-[140px] bg-secondary border-border text-foreground text-xs h-8">
-            <SelectValue placeholder="Categoria" />
-          </SelectTrigger>
-          <SelectContent>
+          <SelectTrigger className="w-[160px] bg-secondary border-border text-foreground text-xs h-8"><SelectValue placeholder="Categoria" /></SelectTrigger>
+          <SelectContent className="max-h-60">
             <SelectItem value="all">Todas</SelectItem>
-            {Object.entries(CATEGORY_LABELS).map(([k, v]) => (
-              <SelectItem key={k} value={k}>{v}</SelectItem>
+            {categoryStore.visibleCategories.map(c => (
+              <SelectItem key={c.id} value={c.id}>{c.icon} {c.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[120px] bg-secondary border-border text-foreground text-xs h-8">
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
+          <SelectTrigger className="w-[120px] bg-secondary border-border text-foreground text-xs h-8"><SelectValue placeholder="Tipo" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="income">Receita</SelectItem>
@@ -131,9 +124,7 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
         </Select>
 
         <Select value={filterMethod} onValueChange={setFilterMethod}>
-          <SelectTrigger className="w-[120px] bg-secondary border-border text-foreground text-xs h-8">
-            <SelectValue placeholder="Método" />
-          </SelectTrigger>
+          <SelectTrigger className="w-[120px] bg-secondary border-border text-foreground text-xs h-8"><SelectValue placeholder="Método" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
             {Object.entries(PAYMENT_METHOD_LABELS).map(([k, v]) => (
@@ -158,38 +149,41 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">Nenhum lançamento encontrado</TableCell></TableRow>
-            ) : filtered.map((t) => (
-              <TableRow key={t.id} className="border-border">
-                <TableCell className="text-foreground text-sm">
-                  {new Date(t.date + 'T12:00:00').toLocaleDateString("pt-BR")}
-                  {t.time && <span className="text-muted-foreground text-xs ml-1">{t.time}</span>}
-                </TableCell>
-                <TableCell className="text-foreground text-sm">
-                  {CATEGORY_META[t.category]?.icon} {t.description}
-                  {t.recurring && <Badge variant="outline" className="ml-2 text-xs border-primary/30 text-primary">Recorrente</Badge>}
-                </TableCell>
-                <TableCell className="text-muted-foreground text-sm">{CATEGORY_LABELS[t.category]}</TableCell>
-                <TableCell className="text-muted-foreground text-xs">
-                  {t.method ? PAYMENT_METHOD_LABELS[t.method as keyof typeof PAYMENT_METHOD_LABELS] || t.paymentMethod : t.paymentMethod}
-                </TableCell>
-                <TableCell className={`text-right text-sm font-medium font-mono ${t.type === 'income' ? 'text-success' : 'text-destructive'}`}>
-                  {t.type === 'income' ? '+' : '-'}{fmt(t.value)}
-                </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setEditing(t)}>
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleDuplicate(t)}>
-                      <Copy className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(t.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            ) : filtered.map((t) => {
+              const catMeta = categoryStore.getCategoryMeta(t.category);
+              return (
+                <TableRow key={t.id} className="border-border">
+                  <TableCell className="text-foreground text-sm">
+                    {new Date(t.date + 'T12:00:00').toLocaleDateString("pt-BR")}
+                    {t.time && <span className="text-muted-foreground text-xs ml-1">{t.time}</span>}
+                  </TableCell>
+                  <TableCell className="text-foreground text-sm">
+                    {catMeta?.icon} {t.description}
+                    {t.recurring && <Badge variant="outline" className="ml-2 text-xs border-primary/30 text-primary">Recorrente</Badge>}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{catMeta?.label || t.category}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs">
+                    {t.method ? PAYMENT_METHOD_LABELS[t.method as keyof typeof PAYMENT_METHOD_LABELS] || t.paymentMethod : t.paymentMethod}
+                  </TableCell>
+                  <TableCell className={`text-right text-sm font-medium font-mono ${t.type === 'income' ? 'text-success' : 'text-destructive'}`}>
+                    {t.type === 'income' ? '+' : '-'}{fmt(t.value)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => setEditing(t)}>
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleDuplicate(t)}>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(t.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </motion.div>
@@ -202,6 +196,7 @@ export default function Transactions({ transactions, onUpdate, onDelete, onAdd }
           onSave={(updates) => handleSaveEdit(editing.id, updates)}
           onDuplicate={() => handleDuplicate(editing)}
           onDelete={() => handleDelete(editing.id)}
+          categoryStore={categoryStore}
         />
       )}
     </div>

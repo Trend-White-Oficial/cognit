@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Import, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings } from "lucide-react";
+import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings, CalendarCheck } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -14,7 +14,6 @@ import {
 
 const mainItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Importar", url: "/importar", icon: Import },
   { title: "Registrar", url: "/registrar", icon: PlusCircle },
   { title: "Lançamentos", url: "/lancamentos", icon: Receipt },
   { title: "Planejamento", url: "/planejamento", icon: FileText },

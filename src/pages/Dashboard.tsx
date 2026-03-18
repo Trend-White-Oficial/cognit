@@ -3,10 +3,10 @@ import { CategoryChart } from "@/components/CategoryChart";
 import { InsightCard } from "@/components/InsightCard";
 import { QuickAdd } from "@/components/QuickAdd";
 import { generateInsight } from "@/lib/ai-classifier";
-import { Transaction, CATEGORY_LABELS } from "@/lib/types";
-import { computeTrialBalance } from "@/lib/notification-parser";
+import { Transaction } from "@/lib/types";
+import { useCategoryStore } from "@/lib/category-store";
 import { Link } from "react-router-dom";
-import { Import, PlusCircle, BarChart3 } from "lucide-react";
+import { PlusCircle, BarChart3, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -16,9 +16,10 @@ interface Props {
   totalDebts: number;
   expensesByCategory: Record<string, number>;
   onAddTransaction: (t: Omit<Transaction, 'id'>) => void;
+  categoryStore: ReturnType<typeof useCategoryStore>;
 }
 
-export default function Dashboard({ balance, totalIncome, totalExpenses, totalDebts, expensesByCategory, onAddTransaction }: Props) {
+export default function Dashboard({ balance, totalIncome, totalExpenses, totalDebts, expensesByCategory, onAddTransaction, categoryStore }: Props) {
   const insight = generateInsight(totalIncome, totalExpenses, expensesByCategory);
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -30,9 +31,6 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
           <p className="text-sm text-muted-foreground">Organização financeira com lógica profissional, sem complicação.</p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm" className="border-border text-muted-foreground hover:text-foreground">
-            <Link to="/importar"><Import className="h-3.5 w-3.5 mr-1" />Importar</Link>
-          </Button>
           <Button asChild size="sm" className="gradient-gold text-primary-foreground shadow-gold">
             <Link to="/registrar"><PlusCircle className="h-3.5 w-3.5 mr-1" />Lançamento</Link>
           </Button>
@@ -41,7 +39,6 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
 
       <QuickAdd onAdd={onAddTransaction} />
 
-      {/* Cards: Saldo, Entradas, Saídas, Resultado */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
           <p className="text-xs text-muted-foreground">Saldo Atual</p>
@@ -51,12 +48,10 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
           <p className="text-xs text-muted-foreground">Entradas no Período</p>
           <p className="text-xl font-bold text-success">{fmt(totalIncome)}</p>
-          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Valores recebidos no mês atual.</p>
         </div>
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
           <p className="text-xs text-muted-foreground">Saídas no Período</p>
           <p className="text-xl font-bold text-destructive">{fmt(totalExpenses)}</p>
-          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Despesas confirmadas no mês atual.</p>
         </div>
         <div className="gradient-card rounded-xl p-4 border border-border shadow-card group relative">
           <p className="text-xs text-muted-foreground">Resultado do Mês</p>
@@ -64,7 +59,6 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
             {fmt(balance - totalDebts)}
           </p>
           {totalDebts > 0 && <p className="text-xs text-muted-foreground mt-1">após dívidas</p>}
-          <p className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Diferença entre entradas e saídas.</p>
         </div>
       </div>
 
@@ -73,7 +67,6 @@ export default function Dashboard({ balance, totalIncome, totalExpenses, totalDe
         <InsightCard insight={insight} />
       </div>
 
-      {/* Balancete mini */}
       <div className="gradient-card rounded-xl p-4 border border-border shadow-card">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">

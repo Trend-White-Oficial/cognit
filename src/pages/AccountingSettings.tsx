@@ -1,22 +1,25 @@
 import { useState } from "react";
-import { Category, CATEGORY_META, DREGroup, DRE_GROUP_LABELS, DEFAULT_DRE_MAPPING } from "@/lib/types";
+import { useCategoryStore } from "@/lib/category-store";
+import { Category, DREGroup, DRE_GROUP_LABELS, DEFAULT_DRE_MAPPING } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Settings, Save } from "lucide-react";
 
-export default function AccountingSettings() {
-  const [mapping, setMapping] = useState<Record<Category, DREGroup>>({ ...DEFAULT_DRE_MAPPING });
+interface Props {
+  categoryStore: ReturnType<typeof useCategoryStore>;
+}
 
-  const handleChange = (category: Category, group: DREGroup) => {
-    setMapping(prev => ({ ...prev, [category]: group }));
+export default function AccountingSettings({ categoryStore }: Props) {
+  const [mapping, setMapping] = useState<Record<string, DREGroup>>({ ...DEFAULT_DRE_MAPPING });
+
+  const handleChange = (categoryId: string, group: DREGroup) => {
+    setMapping(prev => ({ ...prev, [categoryId]: group }));
   };
 
   const handleSave = () => {
     toast.success("Mapeamento contábil salvo");
   };
-
-  const categories = Object.entries(CATEGORY_META) as [Category, typeof CATEGORY_META[Category]][];
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -39,19 +42,19 @@ export default function AccountingSettings() {
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Grupo DRE</p>
           <div className="col-span-3 border-b border-border my-2" />
 
-          {categories.map(([key, meta]) => (
-            <>
-              <div key={key + '-label'} className="flex items-center gap-2 py-2">
-                <span className="text-base">{meta.icon}</span>
+          {categoryStore.visibleCategories.map(cat => (
+            <div key={cat.id} className="contents">
+              <div className="flex items-center gap-2 py-2">
+                <span className="text-base">{cat.icon}</span>
                 <div>
-                  <p className="text-sm text-foreground">{meta.label}</p>
-                  {meta.description && <p className="text-xs text-muted-foreground">{meta.description}</p>}
+                  <p className="text-sm text-foreground">{cat.label}</p>
+                  {cat.description && <p className="text-xs text-muted-foreground">{cat.description}</p>}
                 </div>
               </div>
-              <span key={key + '-kind'} className={`text-xs px-2 py-0.5 rounded-full ${meta.kind === 'income' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
-                {meta.kind === 'income' ? 'Receita' : 'Despesa'}
+              <span className={`text-xs px-2 py-0.5 rounded-full ${cat.kind === 'income' ? 'bg-success/20 text-success' : 'bg-destructive/20 text-destructive'}`}>
+                {cat.kind === 'income' ? 'Receita' : 'Despesa'}
               </span>
-              <Select key={key + '-select'} value={mapping[key]} onValueChange={(v) => handleChange(key, v as DREGroup)}>
+              <Select value={mapping[cat.id] || 'outras_receitas_despesas'} onValueChange={(v) => handleChange(cat.id, v as DREGroup)}>
                 <SelectTrigger className="bg-secondary border-border text-xs h-8">
                   <SelectValue />
                 </SelectTrigger>
@@ -61,7 +64,7 @@ export default function AccountingSettings() {
                   ))}
                 </SelectContent>
               </Select>
-            </>
+            </div>
           ))}
         </div>
       </div>
