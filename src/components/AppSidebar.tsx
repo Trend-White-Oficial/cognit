@@ -82,7 +82,7 @@ export function AppSidebar() {
               <p className="text-[10px] text-muted-foreground leading-tight">Inteligência financeira pessoal</p>
             </div>
           )}
-          {collapsed && <span className="text-primary font-bold text-xl">P</span>}
+          {collapsed && <span className="text-primary font-bold text-xl">C</span>}
         </div>
 
         {renderGroup("Principal", mainItems)}

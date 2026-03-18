@@ -6,8 +6,7 @@ export function AppFooter() {
     <footer className="border-t border-border bg-secondary/30 px-6 py-4 mt-auto">
       <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-1">
-          <span className="text-xs text-primary font-bold">Persona</span>
-          <span className="text-xs text-foreground font-bold">Contábil</span>
+          <span className="text-xs text-primary font-bold">Cognit</span>
           <span className="text-xs text-muted-foreground ml-2">© 2026</span>
         </div>
         <div className="flex flex-wrap gap-4">
