@@ -184,13 +184,16 @@ export interface Debt {
   id: string;
   name: string;
   totalValue: number;
-  date: string;
+  date: string; // due date
+  startDate?: string;
   status: DebtStatus;
   source?: 'manual' | 'simulado';
   creditor?: string;
   debtType?: string;
   originalValue?: number;
   cpfHash?: string;
+  installments?: number;
+  interestRate?: number;
 }
 
 export const DEBT_STATUS_LABELS: Record<DebtStatus, string> = {

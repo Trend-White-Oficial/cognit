@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Transaction, FinancialGoal, Category, Debt, DebtStatus, Alert, NotificationRecord, Account, InvestmentPosition, InvestmentTransaction, Institution, Connector, ChatMessage } from './types';
 
 type PersistedFinanceState = {
@@ -8,6 +8,7 @@ type PersistedFinanceState = {
   alerts: Alert[];
   chatMessages: ChatMessage[];
   investmentPositions: InvestmentPosition[];
+  onboardingCompleted: boolean;
 };
 
 const STORAGE_KEY = 'cognit_finance_state_v1';
@@ -41,6 +42,40 @@ const SAMPLE_INSTITUTIONS: Institution[] = [
   { id: 'rico', name: 'Rico', type: 'broker', status: 'em_construcao' },
 ];
 
+/** Generate projected recurring transactions for a given month */
+function projectRecurrences(transactions: Transaction[], targetMonth: string): Transaction[] {
+  const recurring = transactions.filter(t => t.recurring);
+  const projected: Transaction[] = [];
+  const [targetYear, targetMonthNum] = targetMonth.split('-').map(Number);
+
+  for (const t of recurring) {
+    const [txYear, txMonth] = t.date.split('-').map(Number);
+    // Only project forward (not the original month)
+    if (targetYear < txYear || (targetYear === txYear && targetMonthNum <= txMonth)) continue;
+
+    const day = t.date.split('-')[2];
+    const projectedDate = `${targetYear}-${String(targetMonthNum).padStart(2, '0')}-${day}`;
+
+    // Check if a real transaction already exists for this month with same description+value
+    const alreadyExists = transactions.some(
+      existing => existing.date.startsWith(targetMonth) &&
+        existing.description === t.description &&
+        existing.value === t.value &&
+        existing.type === t.type
+    );
+
+    if (!alreadyExists) {
+      projected.push({
+        ...t,
+        id: `recurring_${t.id}_${targetMonth}`,
+        date: projectedDate,
+        accountId: t.accountId,
+      });
+    }
+  }
+  return projected;
+}
+
 export function useFinanceStore() {
   const persisted = loadPersistedState();
 
@@ -61,11 +96,32 @@ export function useFinanceStore() {
       createdAt: new Date().toISOString(),
     }]
   );
-  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const [onboardingCompleted, setOnboardingCompletedState] = useState(() => persisted?.onboardingCompleted ?? false);
 
   useEffect(() => {
-    savePersistedState({ transactions, goals, debts, alerts, chatMessages, investmentPositions });
-  }, [transactions, goals, debts, alerts, chatMessages, investmentPositions]);
+    savePersistedState({ transactions, goals, debts, alerts, chatMessages, investmentPositions, onboardingCompleted });
+  }, [transactions, goals, debts, alerts, chatMessages, investmentPositions, onboardingCompleted]);
+
+  const setOnboardingCompleted = useCallback((v: boolean) => {
+    setOnboardingCompletedState(v);
+  }, []);
+
+  // Current month for default filtering
+  const currentMonth = new Date().toISOString().slice(0, 7);
+
+  // Transactions for the current month (including projected recurrences)
+  const currentMonthTransactions = useMemo(() => {
+    const real = transactions.filter(t => t.date.startsWith(currentMonth));
+    const projected = projectRecurrences(transactions, currentMonth);
+    return [...real, ...projected];
+  }, [transactions, currentMonth]);
+
+  // Get transactions for any month (with recurrence projection)
+  const getTransactionsForMonth = useCallback((month: string) => {
+    const real = transactions.filter(t => t.date.startsWith(month));
+    const projected = projectRecurrences(transactions, month);
+    return [...real, ...projected];
+  }, [transactions]);
 
   const addTransaction = useCallback((t: Omit<Transaction, 'id'>) => {
     setTransactions(prev => [{ ...t, id: crypto.randomUUID() }, ...prev]);
@@ -85,12 +141,13 @@ export function useFinanceStore() {
     setTransactions(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.value, 0);
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.value, 0);
+  // Use current month transactions for totals
+  const totalIncome = currentMonthTransactions.filter(t => t.type === 'income').reduce((s, t) => s + t.value, 0);
+  const totalExpenses = currentMonthTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.value, 0);
   const totalDebts = debts.filter(d => d.status !== 'quitada').reduce((s, d) => s + d.totalValue, 0);
   const balance = totalIncome - totalExpenses;
 
-  const expensesByCategory = transactions
+  const expensesByCategory = currentMonthTransactions
     .filter(t => t.type === 'expense')
     .reduce((acc, t) => { acc[t.category] = (acc[t.category] || 0) + t.value; return acc; }, {} as Record<Category, number>);
 
@@ -112,6 +169,14 @@ export function useFinanceStore() {
 
   const addDebt = useCallback((d: Omit<Debt, 'id'>) => {
     setDebts(prev => [...prev, { ...d, id: crypto.randomUUID() }]);
+  }, []);
+
+  const updateDebt = useCallback((id: string, updates: Partial<Debt>) => {
+    setDebts(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+  }, []);
+
+  const deleteDebt = useCallback((id: string) => {
+    setDebts(prev => prev.filter(d => d.id !== id));
   }, []);
 
   const updateDebtStatus = useCallback((id: string, status: DebtStatus) => {
@@ -138,6 +203,14 @@ export function useFinanceStore() {
     setInvestmentPositions(prev => [...prev, { ...pos, id: crypto.randomUUID() }]);
   }, []);
 
+  const updateInvestmentPosition = useCallback((id: string, updates: Partial<InvestmentPosition>) => {
+    setInvestmentPositions(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+  }, []);
+
+  const deleteInvestmentPosition = useCallback((id: string) => {
+    setInvestmentPositions(prev => prev.filter(p => p.id !== id));
+  }, []);
+
   const simulateInstitutionData = useCallback((institutionId: string) => {
     const id = crypto.randomUUID();
     const newAccount: Account = {
@@ -147,15 +220,10 @@ export function useFinanceStore() {
     };
     setAccounts(prev => [...prev, newAccount]);
 
-    const sampleTxs: Omit<Transaction, 'id'>[] = [
-      { value: 3200, type: 'income', category: 'salario', date: '2026-03-01', description: `Salário via ${institutionId}`, paymentMethod: 'TED', method: 'ted', recurring: true, accountId: id },
-      { value: 89.90, type: 'expense', category: 'assinaturas', date: '2026-03-05', description: 'Spotify + Netflix', paymentMethod: 'Cartão', method: 'credit', recurring: true, accountId: id },
-      { value: 250, type: 'expense', category: 'alimentacao', date: '2026-03-08', description: 'Supermercado', paymentMethod: 'Débito', method: 'debit', recurring: false, accountId: id },
-    ];
-    const newTxs = sampleTxs.map(t => ({ ...t, id: crypto.randomUUID() }));
-    setTransactions(prev => [...newTxs, ...prev]);
-
+    // Simulated data does NOT create real transactions
+    // Only creates visual connectors
     const inst = institutions.find(i => i.id === institutionId);
+    
     if (inst?.type === 'broker') {
       const positions: InvestmentPosition[] = [
         { id: crypto.randomUUID(), institutionId, ticker: 'PETR4', assetClass: 'acao', quantity: 100, averagePrice: 36.50, currentValue: 3750, updatedAt: new Date().toISOString() },
@@ -168,10 +236,15 @@ export function useFinanceStore() {
     setConnectors(prev => [...prev, { id: crypto.randomUUID(), institutionId, kind: inst?.type || 'bank', status: 'simulado', createdAt: new Date().toISOString() }]);
   }, [institutions]);
 
+  const clearSimulatedData = useCallback(() => {
+    setConnectors([]);
+    setInvestmentPositions(prev => prev.filter(p => p.institutionId === 'manual'));
+  }, []);
+
   const simulateCpfDebtQuery = useCallback((cpfHash: string) => {
     const simulated: Omit<Debt, 'id'>[] = [
-      { name: 'Empréstimo Pessoal', totalValue: 4500, date: '2026-06-15', status: 'ativa', source: 'simulado', creditor: 'Banco Exemplo', debtType: 'empréstimo', originalValue: 5000, cpfHash },
-      { name: 'Cartão de Crédito', totalValue: 1200, date: '2026-04-10', status: 'negociacao', source: 'simulado', creditor: 'Financeira Exemplo', debtType: 'cartão', originalValue: 1800, cpfHash },
+      { name: 'Empréstimo Pessoal', totalValue: 4500, date: '2026-06-15', startDate: '2025-06-15', status: 'ativa', source: 'simulado', creditor: 'Banco Exemplo', debtType: 'empréstimo', originalValue: 5000, cpfHash },
+      { name: 'Cartão de Crédito', totalValue: 1200, date: '2026-04-10', startDate: '2026-01-10', status: 'negociacao', source: 'simulado', creditor: 'Financeira Exemplo', debtType: 'cartão', originalValue: 1800, cpfHash },
     ];
     const newDebts = simulated.map(d => ({ ...d, id: crypto.randomUUID() }));
     setDebts(prev => [...prev, ...newDebts]);
@@ -181,12 +254,14 @@ export function useFinanceStore() {
   return {
     transactions, goals, debts, alerts, notifications, accounts, institutions, connectors,
     investmentPositions, investmentTransactions, chatMessages, onboardingCompleted,
+    currentMonth, currentMonthTransactions, getTransactionsForMonth,
     addTransaction, addTransactions, updateTransaction, deleteTransaction,
     addGoal, updateGoal, deleteGoal, updateGoalProgress,
-    addDebt, updateDebtStatus,
+    addDebt, updateDebt, deleteDebt, updateDebtStatus,
     addAlert, markAlertDelivered,
     addNotification, addChatMessage, addInvestmentPosition,
-    simulateInstitutionData, simulateCpfDebtQuery,
+    updateInvestmentPosition, deleteInvestmentPosition,
+    simulateInstitutionData, simulateCpfDebtQuery, clearSimulatedData,
     setOnboardingCompleted,
     totalIncome, totalExpenses, totalDebts, balance, expensesByCategory,
   };
