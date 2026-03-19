@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Category, PAYMENT_METHOD_LABELS, Transaction, TransactionType, ParsedTransaction } from "@/lib/types";
 import { classifyTransaction } from "@/lib/ai-classifier";
 import { parseNotificationText } from "@/lib/notification-parser";
@@ -15,7 +14,7 @@ import { addCategoryHint } from "@/lib/ai-classifier";
 import { useCategoryStore } from "@/lib/category-store";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { PlusCircle, FileText, Sparkles, Check, Loader2, Pencil, Beaker } from "lucide-react";
+import { PlusCircle, FileText, Sparkles, Check, Loader2, Pencil, Beaker, Upload } from "lucide-react";
 import EditTransactionModal from "@/components/EditTransactionModal";
 
 interface Props {
@@ -141,25 +140,28 @@ export default function RegisterTransaction({ onAdd, onConfirmImport, onAddNotif
   const categoriesForType = type === 'income' ? categoryStore.incomeCategories : categoryStore.expenseCategories;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-foreground mb-1">Registrar</h1>
-      <p className="text-sm text-muted-foreground mb-6">Registre manualmente ou importe notificações bancárias</p>
+      <p className="text-sm text-muted-foreground mb-6">Registre manualmente, importe texto ou envie arquivos</p>
 
       <Tabs defaultValue="manual" className="space-y-4">
-        <TabsList className="bg-secondary border border-border">
-          <TabsTrigger value="manual" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+        <TabsList className="bg-secondary border border-border flex-wrap h-auto gap-1 p-1">
+          <TabsTrigger value="manual" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary text-xs">
             <PlusCircle className="h-3.5 w-3.5 mr-1" /> Manual
           </TabsTrigger>
-          <TabsTrigger value="import" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+          <TabsTrigger value="import" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary text-xs">
             <FileText className="h-3.5 w-3.5 mr-1" /> Importar Texto
+          </TabsTrigger>
+          <TabsTrigger value="file" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary text-xs">
+            <Upload className="h-3.5 w-3.5 mr-1" /> Importar Arquivo
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="manual">
           <motion.form initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onSubmit={handleSubmit}
-            className="gradient-card rounded-xl p-6 border border-border shadow-card space-y-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
+            className="gradient-card rounded-xl p-4 sm:p-6 border border-border shadow-card space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
                 <Label className="text-muted-foreground text-xs">Descrição</Label>
                 <Input placeholder="Ex: iFood, Uber, Salário..." value={description}
                   onChange={(e) => handleDescriptionChange(e.target.value)} className="bg-secondary border-border text-foreground" />
@@ -221,7 +223,7 @@ export default function RegisterTransaction({ onAdd, onConfirmImport, onAddNotif
         <TabsContent value="import">
           {!showPreview ? (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              <div className="gradient-card rounded-xl p-6 border border-border shadow-card">
+              <div className="gradient-card rounded-xl p-4 sm:p-6 border border-border shadow-card">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <FileText className="h-5 w-5 text-primary" />
@@ -232,10 +234,10 @@ export default function RegisterTransaction({ onAdd, onConfirmImport, onAddNotif
                   </Button>
                 </div>
                 <Textarea
-                  placeholder={`Cole aqui suas notificações bancárias ou textos informais.\n\nO Cognit analisa o texto e organiza automaticamente valor, data e categoria.`}
+                  placeholder={`Cole aqui suas notificações bancárias ou textos informais.\n\nO Cognit analisa o conteúdo e organiza automaticamente valor, data, método e categoria.`}
                   value={rawText} onChange={(e) => setRawText(e.target.value)}
                   className="min-h-[200px] bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none" />
-                <p className="text-xs text-muted-foreground mt-2">O Cognit analisa o texto e organiza automaticamente valor, data e categoria.</p>
+                <p className="text-xs text-muted-foreground mt-2">O Cognit analisa o conteúdo e organiza automaticamente valor, data, método e categoria.</p>
                 <Button onClick={handleParse} disabled={isParsing} className="w-full mt-4 gradient-gold text-primary-foreground font-semibold shadow-gold">
                   {isParsing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
                   {isParsing ? "Analisando..." : "Analisar e criar lançamentos"}
@@ -244,20 +246,20 @@ export default function RegisterTransaction({ onAdd, onConfirmImport, onAddNotif
             </motion.div>
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 {[
                   { label: "Entradas", value: parsed.filter(p => p.type === 'income').reduce((s, p) => s + p.amount, 0), color: "text-success" },
                   { label: "Saídas", value: parsed.filter(p => p.type === 'expense').reduce((s, p) => s + p.amount, 0), color: "text-destructive" },
                   { label: "Total", value: parsed.length, color: "text-primary", isCount: true },
                 ].map((c, i) => (
-                  <div key={i} className="gradient-card rounded-xl p-4 border border-border shadow-card">
+                  <div key={i} className="gradient-card rounded-xl p-3 sm:p-4 border border-border shadow-card">
                     <p className="text-xs text-muted-foreground">{c.label}</p>
-                    <p className={`text-lg font-bold ${c.color}`}>{(c as any).isCount ? `${c.value} itens` : fmt(c.value as number)}</p>
+                    <p className={`text-base sm:text-lg font-bold ${c.color}`}>{(c as any).isCount ? `${c.value} itens` : fmt(c.value as number)}</p>
                   </div>
                 ))}
               </div>
 
-              <div className="gradient-card rounded-xl border border-border shadow-card overflow-hidden">
+              <div className="gradient-card rounded-xl border border-border shadow-card overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
@@ -316,7 +318,7 @@ export default function RegisterTransaction({ onAdd, onConfirmImport, onAddNotif
                 </Table>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <Button onClick={handleConfirmImport} className="gradient-gold text-primary-foreground font-semibold shadow-gold">
                   <Check className="h-4 w-4 mr-2" /> Confirmar e salvar {parsed.length} lançamentos
                 </Button>
@@ -331,6 +333,26 @@ export default function RegisterTransaction({ onAdd, onConfirmImport, onAddNotif
               )}
             </motion.div>
           )}
+        </TabsContent>
+
+        <TabsContent value="file">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="gradient-card rounded-xl p-4 sm:p-6 border border-border shadow-card text-center">
+              <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-base font-semibold text-foreground mb-2">Importar Arquivos</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                PDFs, holerites, comprovantes, extratos SCR
+              </p>
+              <div className="bg-secondary/50 rounded-lg p-4 border border-border">
+                <p className="text-xs text-muted-foreground">
+                  📋 Leitura automática em construção
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Por enquanto, use a aba "Importar Texto" para colar o conteúdo manualmente, ou registre via "Manual".
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div>
