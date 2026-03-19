@@ -6,20 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { TrendingUp, PieChart, Plus, AlertTriangle } from "lucide-react";
+import { TrendingUp, PieChart, Plus, AlertTriangle, Pencil, Trash2, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
   positions: InvestmentPosition[];
   investmentTransactions: InvestmentTransaction[];
   onAddPosition?: (pos: Omit<InvestmentPosition, 'id'>) => void;
+  onUpdatePosition?: (id: string, updates: Partial<InvestmentPosition>) => void;
+  onDeletePosition?: (id: string) => void;
 }
 
-export default function Investments({ positions, investmentTransactions, onAddPosition }: Props) {
+export default function Investments({ positions, investmentTransactions, onAddPosition, onUpdatePosition, onDeletePosition }: Props) {
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const [addOpen, setAddOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     ticker: '', assetClass: 'acao' as AssetClass, quantity: 0, averagePrice: 0, currentValue: 0, institutionId: 'manual',
   });
@@ -34,29 +36,61 @@ export default function Investments({ positions, investmentTransactions, onAddPo
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [positions]);
 
-  const handleAdd = () => {
+  const resetForm = () => {
+    setForm({ ticker: '', assetClass: 'acao', quantity: 0, averagePrice: 0, currentValue: 0, institutionId: 'manual' });
+    setEditingId(null);
+  };
+
+  const openEdit = (p: InvestmentPosition) => {
+    setForm({
+      ticker: p.ticker, assetClass: p.assetClass, quantity: p.quantity,
+      averagePrice: p.averagePrice, currentValue: p.currentValue, institutionId: p.institutionId,
+    });
+    setEditingId(p.id);
+    setAddOpen(true);
+  };
+
+  const handleSave = () => {
     if (!form.ticker || form.quantity <= 0 || form.averagePrice <= 0) {
       toast.error("Preencha ticker, quantidade e preço médio");
       return;
     }
-    if (onAddPosition) {
-      onAddPosition({
-        institutionId: form.institutionId, ticker: form.ticker.toUpperCase(), assetClass: form.assetClass,
-        quantity: form.quantity, averagePrice: form.averagePrice,
-        currentValue: form.currentValue || form.quantity * form.averagePrice,
-        updatedAt: new Date().toISOString(),
-      });
+    const data = {
+      institutionId: form.institutionId, ticker: form.ticker.toUpperCase(), assetClass: form.assetClass,
+      quantity: form.quantity, averagePrice: form.averagePrice,
+      currentValue: form.currentValue || form.quantity * form.averagePrice,
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (editingId && onUpdatePosition) {
+      onUpdatePosition(editingId, data);
+      toast.success("Posição atualizada");
+    } else if (onAddPosition) {
+      onAddPosition(data);
       toast.success("Posição adicionada");
-      setAddOpen(false);
-      setForm({ ticker: '', assetClass: 'acao', quantity: 0, averagePrice: 0, currentValue: 0, institutionId: 'manual' });
+    }
+    resetForm();
+    setAddOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    onDeletePosition?.(id);
+    toast.success("Posição removida");
+  };
+
+  const handleDuplicate = (p: InvestmentPosition) => {
+    if (onAddPosition) {
+      const { id, ...rest } = p;
+      onAddPosition(rest);
+      toast.success("Posição duplicada");
     }
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-1">
         <h1 className="text-2xl font-bold text-foreground">Investimentos</h1>
-        <Button size="sm" onClick={() => setAddOpen(true)} className="gradient-gold text-primary-foreground shadow-gold">
+        <Button size="sm" onClick={() => { resetForm(); setAddOpen(true); }} className="gradient-gold text-primary-foreground shadow-gold">
           <Plus className="h-4 w-4 mr-1" /> Cadastrar
         </Button>
       </div>
@@ -109,7 +143,7 @@ export default function Investments({ positions, investmentTransactions, onAddPo
             </div>
           </div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="gradient-card rounded-xl border border-border shadow-card overflow-hidden">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="gradient-card rounded-xl border border-border shadow-card overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow className="border-border">
@@ -119,6 +153,7 @@ export default function Investments({ positions, investmentTransactions, onAddPo
                   <TableHead className="text-right text-muted-foreground">PM</TableHead>
                   <TableHead className="text-right text-muted-foreground">Valor Atual</TableHead>
                   <TableHead className="text-right text-muted-foreground">Retorno</TableHead>
+                  <TableHead className="text-center text-muted-foreground">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -133,6 +168,19 @@ export default function Investments({ positions, investmentTransactions, onAddPo
                       <TableCell className="text-right font-mono text-muted-foreground">{fmt(p.averagePrice)}</TableCell>
                       <TableCell className="text-right font-mono text-foreground">{fmt(p.currentValue)}</TableCell>
                       <TableCell className={`text-right font-mono ${ret >= 0 ? 'text-success' : 'text-destructive'}`}>{fmt(ret)}</TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => openEdit(p)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => handleDuplicate(p)}>
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(p.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -142,20 +190,20 @@ export default function Investments({ positions, investmentTransactions, onAddPo
         </>
       )}
 
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="bg-card border-border text-foreground max-w-sm">
+      <Dialog open={addOpen} onOpenChange={(open) => { if (!open) resetForm(); setAddOpen(open); }}>
+        <DialogContent className="bg-card border-border text-foreground max-w-sm max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Cadastrar Investimento</DialogTitle>
+            <DialogTitle>{editingId ? 'Editar Investimento' : 'Cadastrar Investimento'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-3 py-2">
             <div>
               <Label className="text-muted-foreground text-xs">Ticker / Nome</Label>
-              <Input value={form.ticker} onChange={e => setForm(f => ({ ...f, ticker: e.target.value }))} className="bg-secondary border-border" placeholder="Ex: PETR4, Tesouro IPCA+" />
+              <Input value={form.ticker} onChange={e => setForm(f => ({ ...f, ticker: e.target.value }))} className="bg-secondary border-border text-foreground" placeholder="Ex: PETR4, Tesouro IPCA+" />
             </div>
             <div>
               <Label className="text-muted-foreground text-xs">Classe</Label>
               <Select value={form.assetClass} onValueChange={v => setForm(f => ({ ...f, assetClass: v as AssetClass }))}>
-                <SelectTrigger className="bg-secondary border-border text-sm"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-secondary border-border text-sm text-foreground"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {Object.entries(ASSET_CLASS_LABELS).map(([k, v]) => (
                     <SelectItem key={k} value={k}>{v}</SelectItem>
@@ -166,20 +214,23 @@ export default function Investments({ positions, investmentTransactions, onAddPo
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-muted-foreground text-xs">Quantidade</Label>
-                <Input type="number" value={form.quantity || ''} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border" />
+                <Input type="number" value={form.quantity || ''} onChange={e => setForm(f => ({ ...f, quantity: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border text-foreground" />
               </div>
               <div>
                 <Label className="text-muted-foreground text-xs">Preço Médio (R$)</Label>
-                <Input type="number" step="0.01" value={form.averagePrice || ''} onChange={e => setForm(f => ({ ...f, averagePrice: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border" />
+                <Input type="number" step="0.01" value={form.averagePrice || ''} onChange={e => setForm(f => ({ ...f, averagePrice: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border text-foreground" />
               </div>
             </div>
             <div>
               <Label className="text-muted-foreground text-xs">Valor Atual (R$) — opcional</Label>
-              <Input type="number" step="0.01" value={form.currentValue || ''} onChange={e => setForm(f => ({ ...f, currentValue: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border" placeholder="Se vazio, usa Qtd × PM" />
+              <Input type="number" step="0.01" value={form.currentValue || ''} onChange={e => setForm(f => ({ ...f, currentValue: parseFloat(e.target.value) || 0 }))} className="bg-secondary border-border text-foreground" placeholder="Se vazio, usa Qtd × PM" />
             </div>
           </div>
           <DialogFooter>
-            <Button size="sm" onClick={handleAdd} className="gradient-gold text-primary-foreground shadow-gold">Cadastrar</Button>
+            <Button variant="outline" onClick={() => { resetForm(); setAddOpen(false); }} className="border-border text-muted-foreground">Cancelar</Button>
+            <Button size="sm" onClick={handleSave} className="gradient-gold text-primary-foreground shadow-gold">
+              {editingId ? 'Salvar' : 'Cadastrar'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

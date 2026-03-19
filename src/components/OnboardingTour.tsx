@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Import, BotMessageSquare, Receipt, Scale, ChevronRight, ChevronLeft, X } from "lucide-react";
+import { LayoutDashboard, BotMessageSquare, Receipt, Scale, ChevronRight, ChevronLeft, X, PlusCircle } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -12,7 +12,7 @@ interface Props {
 
 const steps = [
   { icon: LayoutDashboard, title: 'Dashboard', description: 'Visão geral das suas finanças: saldo, entradas, saídas e insights inteligentes. Registre lançamentos rápidos diretamente aqui.' },
-  { icon: Import, title: 'Importar', description: 'Cole notificações bancárias ou textos informais (ex: "vivo 45, vence 23"). O parser identifica valor, data, método e categoria automaticamente.' },
+  { icon: PlusCircle, title: 'Registrar', description: 'Registre manualmente ou importe notificações bancárias. O Cognit analisa o conteúdo e organiza automaticamente valor, data, método e categoria.' },
   { icon: BotMessageSquare, title: 'Assistente IA', description: 'Chat único para tudo: registrar entradas/saídas, consultar saldo, criar metas e dívidas. Fale naturalmente em português.' },
   { icon: Receipt, title: 'Lançamentos', description: 'Visualize, edite, duplique ou exclua qualquer transação. Filtros por mês, categoria, tipo e método de pagamento.' },
   { icon: Scale, title: 'Balanço / DRE', description: 'Relatórios contábeis profissionais: Balanço Patrimonial (Ativo/Passivo) e DRE (Receita → Resultado). Exportação CSV disponível.' },
@@ -25,7 +25,7 @@ export function OnboardingTour({ open, onClose, onComplete }: Props) {
 
   const handleNext = () => {
     if (step < steps.length - 1) setStep(s => s + 1);
-    else { onComplete(); onClose(); }
+    else { onComplete(); onClose(); setStep(0); }
   };
 
   const handlePrev = () => {
@@ -33,8 +33,8 @@ export function OnboardingTour({ open, onClose, onComplete }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-card border-border text-foreground max-w-md p-0 overflow-hidden">
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="bg-card border-border text-foreground max-w-md p-0 overflow-hidden max-h-[90vh]">
         <div className="relative">
           <Button variant="ghost" size="icon" className="absolute right-2 top-2 z-10 text-muted-foreground" onClick={onClose}>
             <X className="h-4 w-4" />

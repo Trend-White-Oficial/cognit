@@ -1,5 +1,6 @@
 import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings, CalendarCheck } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { useI18n } from "@/lib/i18n";
 import {
   Sidebar,
   SidebarContent,
@@ -12,40 +13,41 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const mainItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Registrar", url: "/registrar", icon: PlusCircle },
-  { title: "Lançamentos", url: "/lancamentos", icon: Receipt },
-  { title: "Planejamento", url: "/planejamento", icon: FileText },
-];
-
-const contabilItems = [
-  { title: "Balancete", url: "/balancete", icon: BarChart3 },
-  { title: "Balanço Patrimonial", url: "/balanco", icon: Scale },
-  { title: "DRE", url: "/dre", icon: FileBarChart },
-  { title: "Config. Contábeis", url: "/configuracoes-contabeis", icon: Settings },
-];
-
-const toolItems = [
-  { title: "Dívidas", url: "/dividas", icon: Landmark },
-  { title: "Dívidas CPF", url: "/dividas-cpf", icon: Shield },
-  { title: "Metas", url: "/metas", icon: Target },
-  { title: "Investimentos", url: "/investimentos", icon: Wallet },
-  { title: "Conexões", url: "/conexoes", icon: Link2 },
-  { title: "Hábitos", url: "/habitos", icon: TrendingUp },
-  { title: "Alertas", url: "/alertas", icon: Bell },
-  { title: "IR", url: "/ir", icon: Shield },
-];
-
-const otherItems = [
-  { title: "Assistente IA", url: "/assistente", icon: BotMessageSquare },
-  { title: "Conteúdos", url: "/conteudos", icon: BookOpen },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
-];
-
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { t } = useI18n();
   const collapsed = state === "collapsed";
+
+  const mainItems = [
+    { title: t('dashboard'), url: "/", icon: LayoutDashboard },
+    { title: t('register'), url: "/registrar", icon: PlusCircle },
+    { title: t('transactions'), url: "/lancamentos", icon: Receipt },
+    { title: t('planning'), url: "/planejamento", icon: FileText },
+  ];
+
+  const contabilItems = [
+    { title: t('trial_balance'), url: "/balancete", icon: BarChart3 },
+    { title: t('balance_sheet'), url: "/balanco", icon: Scale },
+    { title: t('dre'), url: "/dre", icon: FileBarChart },
+    { title: t('accounting_settings'), url: "/configuracoes-contabeis", icon: Settings },
+  ];
+
+  const toolItems = [
+    { title: t('debts'), url: "/dividas", icon: Landmark },
+    { title: t('debts_cpf'), url: "/dividas-cpf", icon: Shield },
+    { title: t('goals'), url: "/metas", icon: Target },
+    { title: t('investments'), url: "/investimentos", icon: Wallet },
+    { title: t('connections'), url: "/conexoes", icon: Link2 },
+    { title: t('habits'), url: "/habitos", icon: TrendingUp },
+    { title: t('alerts'), url: "/alertas", icon: Bell },
+    { title: t('tax'), url: "/ir", icon: Shield },
+  ];
+
+  const otherItems = [
+    { title: t('assistant'), url: "/assistente", icon: BotMessageSquare },
+    { title: t('content'), url: "/conteudos", icon: BookOpen },
+    { title: t('settings'), url: "/configuracoes", icon: Settings },
+  ];
 
   const renderGroup = (label: string, items: typeof mainItems) => (
     <SidebarGroup>
@@ -75,19 +77,17 @@ export function AppSidebar() {
         <div className="p-4 mb-2">
           {!collapsed && (
             <div>
-              <h1 className="text-lg font-bold text-primary tracking-tight">
-                Cognit
-              </h1>
+              <h1 className="text-lg font-bold text-primary tracking-tight">Cognit</h1>
               <p className="text-[10px] text-muted-foreground leading-tight">Inteligência financeira pessoal</p>
             </div>
           )}
           {collapsed && <span className="text-primary font-bold text-xl">C</span>}
         </div>
 
-        {renderGroup("Principal", mainItems)}
-        {renderGroup("Contabilidade", contabilItems)}
-        {renderGroup("Ferramentas", toolItems)}
-        {renderGroup("Outros", otherItems)}
+        {renderGroup(t('main'), mainItems)}
+        {renderGroup(t('accounting'), contabilItems)}
+        {renderGroup(t('tools'), toolItems)}
+        {renderGroup(t('others'), otherItems)}
       </SidebarContent>
     </Sidebar>
   );
