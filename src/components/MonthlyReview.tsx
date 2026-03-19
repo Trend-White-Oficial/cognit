@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Transaction } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Transaction, Debt, Connector } from "@/lib/types";
 import { useCategoryStore } from "@/lib/category-store";
 import { CheckCircle2, ArrowRight, BarChart3, Tag, RefreshCw, AlertTriangle } from "lucide-react";
 
@@ -10,6 +11,8 @@ interface Props {
   open: boolean;
   onClose: () => void;
   transactions: Transaction[];
+  debts?: Debt[];
+  connectors?: Connector[];
   categoryStore: ReturnType<typeof useCategoryStore>;
 }
 
@@ -20,25 +23,29 @@ const STEPS = [
   { title: 'Pendências', icon: AlertTriangle, description: 'Itens que merecem atenção.' },
 ];
 
-export function MonthlyReview({ open, onClose, transactions, categoryStore }: Props) {
+export function MonthlyReview({ open, onClose, transactions, debts = [], connectors = [], categoryStore }: Props) {
   const [step, setStep] = useState(0);
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const currentMonth = new Date().toISOString().slice(0, 7);
-  const monthTxs = transactions.filter(t => t.date.startsWith(currentMonth));
-  const income = monthTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.value, 0);
-  const expense = monthTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.value, 0);
-  const recurring = monthTxs.filter(t => t.recurring);
+  const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.value, 0);
+  const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.value, 0);
+  const recurring = transactions.filter(t => t.recurring);
 
   const byCat: Record<string, number> = {};
-  monthTxs.filter(t => t.type === 'expense').forEach(t => {
+  transactions.filter(t => t.type === 'expense').forEach(t => {
     const label = categoryStore.getCategoryLabel(t.category);
     byCat[label] = (byCat[label] || 0) + t.value;
   });
   const topCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-  const uncategorized = monthTxs.filter(t => t.category === 'outros');
-  const lowConfidence = monthTxs.filter(t => t.aiConfidence !== undefined && t.aiConfidence < 0.6);
+  const uncategorized = transactions.filter(t => t.category === 'outros');
+  const lowConfidence = transactions.filter(t => t.aiConfidence !== undefined && t.aiConfidence < 0.6);
+  const hasSimulations = connectors.some(c => c.status === 'simulado');
+
+  // Debts due this month
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const dueDebts = debts.filter(d => d.status !== 'quitada' && d.date.startsWith(currentMonth));
+  const overdueDebts = debts.filter(d => d.status !== 'quitada' && d.date < new Date().toISOString().split('T')[0]);
 
   const pct = Math.round(((step + 1) / STEPS.length) * 100);
 
@@ -94,7 +101,7 @@ export function MonthlyReview({ open, onClose, transactions, categoryStore }: Pr
         );
       case 2:
         return (
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-48 overflow-y-auto">
             {recurring.length === 0 && <p className="text-sm text-muted-foreground">Nenhum lançamento recorrente neste mês.</p>}
             {recurring.map(t => (
               <div key={t.id} className="flex items-center justify-between bg-secondary/50 rounded-lg px-3 py-2">
@@ -112,7 +119,22 @@ export function MonthlyReview({ open, onClose, transactions, categoryStore }: Pr
                 <p className="text-sm text-foreground">⚠️ Saídas superam entradas em <span className="font-bold">{fmt(expense - income)}</span></p>
               </div>
             )}
-            {expense <= income && (
+            {overdueDebts.length > 0 && (
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                <p className="text-sm text-foreground">⚠️ {overdueDebts.length} dívida(s) em atraso</p>
+              </div>
+            )}
+            {dueDebts.length > 0 && (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                <p className="text-sm text-foreground">📋 {dueDebts.length} dívida(s) vencendo este mês</p>
+              </div>
+            )}
+            {hasSimulations && (
+              <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                <p className="text-sm text-foreground">ℹ️ Existem simulações ativas que não afetam seus relatórios reais.</p>
+              </div>
+            )}
+            {expense <= income && overdueDebts.length === 0 && (
               <div className="flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
                 <p className="text-sm">Mês sob controle! Saldo positivo de {fmt(income - expense)}.</p>
@@ -126,7 +148,7 @@ export function MonthlyReview({ open, onClose, transactions, categoryStore }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-card border-border text-foreground max-w-md">
+      <DialogContent className="bg-card border-border text-foreground max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {(() => { const StepIcon = STEPS[step].icon; return <StepIcon className="h-5 w-5 text-primary" />; })()}
