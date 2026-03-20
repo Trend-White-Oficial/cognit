@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, BotMessageSquare, Receipt, Scale, ChevronRight, ChevronLeft, X, PlusCircle } from "lucide-react";
+import { LayoutDashboard, BotMessageSquare, Receipt, Scale, ChevronRight, ChevronLeft, X, PlusCircle, Landmark, Target, TrendingUp, BarChart3, Settings2 } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -11,11 +11,16 @@ interface Props {
 }
 
 const steps = [
-  { icon: LayoutDashboard, title: 'Dashboard', description: 'Visão geral das suas finanças: saldo, entradas, saídas e insights inteligentes. Registre lançamentos rápidos diretamente aqui.' },
-  { icon: PlusCircle, title: 'Registrar', description: 'Registre manualmente ou importe notificações bancárias. O Cognit analisa o conteúdo e organiza automaticamente valor, data, método e categoria.' },
-  { icon: BotMessageSquare, title: 'Assistente IA', description: 'Chat único para tudo: registrar entradas/saídas, consultar saldo, criar metas e dívidas. Fale naturalmente em português.' },
+  { icon: LayoutDashboard, title: 'Dashboard', description: 'Visão geral das suas finanças: saldo, entradas, saídas, dívidas, investimentos e insights inteligentes. Tudo em uma tela.' },
+  { icon: PlusCircle, title: 'Registrar', description: 'Ponto único para registrar dados: manual, importar texto ou importar arquivos. O Cognit analisa o conteúdo e organiza automaticamente.' },
+  { icon: BotMessageSquare, title: 'Assistente IA', description: 'Chat inteligente para tudo: registrar lançamentos, criar dívidas e metas, consultar saldo. Fale naturalmente.' },
   { icon: Receipt, title: 'Lançamentos', description: 'Visualize, edite, duplique ou exclua qualquer transação. Filtros por mês, categoria, tipo e método de pagamento.' },
-  { icon: Scale, title: 'Balanço / DRE', description: 'Relatórios contábeis profissionais: Balanço Patrimonial (Ativo/Passivo) e DRE (Receita → Resultado). Exportação CSV disponível.' },
+  { icon: Landmark, title: 'Dívidas', description: 'Gerencie suas dívidas com controle total: valor, vencimento, parcelas, juros e cálculo automático de atraso.' },
+  { icon: Target, title: 'Metas', description: 'Cadastre metas financeiras e acompanhe o progresso. Defina prazo e adicione valores gradualmente.' },
+  { icon: TrendingUp, title: 'Investimentos', description: 'Cadastre posições de investimento manualmente. Ações, FIIs, renda fixa, ETFs e mais. B3 em construção.' },
+  { icon: Settings2, title: 'Categorias', description: 'Gerencie suas categorias financeiras: adicione, edite, oculte ou exclua. Mudanças refletem em todo o app.' },
+  { icon: Scale, title: 'Relatórios Contábeis', description: 'Balanço Patrimonial, DRE e Balancete. Relatórios profissionais com exportação CSV.' },
+  { icon: BarChart3, title: 'Conferência Mensal', description: 'Revise o mês: gastos, categorias, recorrências e pendências. Crie o hábito de conferir suas finanças.' },
 ];
 
 export function OnboardingTour({ open, onClose, onComplete }: Props) {
@@ -50,9 +55,9 @@ export function OnboardingTour({ open, onClose, onComplete }: Props) {
           </div>
 
           <div className="p-6">
-            <div className="flex gap-1.5 justify-center mb-4">
+            <div className="flex gap-1 justify-center mb-4 flex-wrap">
               {steps.map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-primary' : 'w-1.5 bg-muted'}`} />
+                <div key={i} className={`h-1.5 rounded-full transition-all ${i === step ? 'w-5 bg-primary' : 'w-1.5 bg-muted'}`} />
               ))}
             </div>
 

@@ -15,7 +15,6 @@ import { HelpCircle, CalendarCheck, Settings2 } from "lucide-react";
 import Dashboard from "./Dashboard";
 import RegisterTransaction from "./RegisterTransaction";
 import Spreadsheet from "./Spreadsheet";
-import Planning from "./Planning";
 import Debts from "./Debts";
 import DebtsCPF from "./DebtsCPF";
 import Goals from "./Goals";
@@ -33,11 +32,12 @@ import Content from "./Content";
 import Legal from "./Legal";
 import AccountingSettings from "./AccountingSettings";
 import UserSettings from "./UserSettings";
+import Login from "./Login";
 
 const AppLayout = () => {
   const store = useFinanceStore();
   const categoryStore = useCategoryStore();
-  const { t, fmt } = useI18n();
+  const { t } = useI18n();
   const [tourOpen, setTourOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
@@ -62,9 +62,7 @@ const AppLayout = () => {
         <div className="flex-1 flex flex-col min-h-0">
           <header className="h-12 flex items-center border-b border-border px-2 shrink-0">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-            <span className="ml-3 text-xs font-medium text-muted-foreground">
-              Cognit
-            </span>
+            <span className="ml-3 text-xs font-medium text-muted-foreground">Cognit</span>
             <Badge variant="outline" className="ml-2 text-[10px] border-border text-muted-foreground px-1.5 py-0">
               {currentMonthLabel}
             </Badge>
@@ -83,21 +81,17 @@ const AppLayout = () => {
           <main className="flex-1 overflow-y-auto">
             <Routes>
               <Route index element={<Dashboard store={store} categoryStore={categoryStore} />} />
-
               <Route path="registrar" element={<RegisterTransaction onAdd={store.addTransaction} onConfirmImport={store.addTransactions} onAddNotification={store.addNotification} categoryStore={categoryStore} />} />
-
               <Route path="lancamentos" element={<Transactions transactions={store.transactions} onUpdate={store.updateTransaction} onDelete={store.deleteTransaction} onAdd={store.addTransaction} categoryStore={categoryStore} />} />
               <Route path="planilha" element={<Spreadsheet transactions={store.transactions} />} />
-              <Route path="planejamento" element={<Planning />} />
               <Route path="balancete" element={<TrialBalance transactions={store.transactions} />} />
               <Route path="balanco" element={<BalanceSheet transactions={store.transactions} debts={store.debts} />} />
               <Route path="dre" element={<DREPage transactions={store.transactions} />} />
               <Route path="configuracoes-contabeis" element={<AccountingSettings categoryStore={categoryStore} />} />
               <Route path="dividas" element={<Debts debts={store.debts} onAdd={store.addDebt} onUpdate={store.updateDebt} onDelete={store.deleteDebt} onUpdateStatus={store.updateDebtStatus} />} />
-              <Route path="dividas-cpf" element={<DebtsCPF debts={store.debts} onAdd={store.addDebt} onUpdateStatus={store.updateDebtStatus} onSimulateCpf={store.simulateCpfDebtQuery} />} />
+              <Route path="dividas-cpf" element={<DebtsCPF debts={store.debts} onAdd={store.addDebt} onUpdate={store.updateDebt} onDelete={store.deleteDebt} onUpdateStatus={store.updateDebtStatus} onSimulateCpf={store.simulateCpfDebtQuery} />} />
               <Route path="metas" element={<Goals goals={store.goals} onAdd={store.addGoal} onUpdate={store.updateGoal} onDelete={store.deleteGoal} onAddProgress={store.updateGoalProgress} />} />
               <Route path="investimentos" element={<Investments positions={store.investmentPositions} investmentTransactions={store.investmentTransactions} onAddPosition={store.addInvestmentPosition} onUpdatePosition={store.updateInvestmentPosition} onDeletePosition={store.deleteInvestmentPosition} />} />
-
               <Route path="conexoes" element={<Connections institutions={store.institutions} connectors={store.connectors} onSimulate={store.simulateInstitutionData} onClearSimulated={store.clearSimulatedData} />} />
               <Route path="habitos" element={<Habits transactions={store.transactions} />} />
               <Route path="alertas" element={<Alerts alerts={store.alerts} onAdd={store.addAlert} onMarkDelivered={store.markAlertDelivered} />} />
@@ -105,6 +99,7 @@ const AppLayout = () => {
               <Route path="assistente" element={<AiAssistant transactions={store.transactions} balance={store.balance} totalIncome={store.totalIncome} totalExpenses={store.totalExpenses} expensesByCategory={store.expensesByCategory} onAddTransaction={store.addTransaction} chatMessages={store.chatMessages} onAddChatMessage={store.addChatMessage} onAddDebt={store.addDebt} onAddGoal={store.addGoal} onOpenTour={() => setTourOpen(true)} categoryStore={categoryStore} />} />
               <Route path="conteudos" element={<Content />} />
               <Route path="configuracoes" element={<UserSettings />} />
+              <Route path="login" element={<Login />} />
               <Route path="legal/:page" element={<Legal />} />
             </Routes>
           </main>

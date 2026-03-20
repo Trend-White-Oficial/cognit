@@ -54,7 +54,10 @@ function projectRecurrences(transactions: Transaction[], targetMonth: string): T
     if (targetYear < txYear || (targetYear === txYear && targetMonthNum <= txMonth)) continue;
 
     const day = t.date.split('-')[2];
-    const projectedDate = `${targetYear}-${String(targetMonthNum).padStart(2, '0')}-${day}`;
+    // Clamp day to valid range for target month
+    const lastDay = new Date(targetYear, targetMonthNum, 0).getDate();
+    const clampedDay = Math.min(parseInt(day), lastDay);
+    const projectedDate = `${targetYear}-${String(targetMonthNum).padStart(2, '0')}-${String(clampedDay).padStart(2, '0')}`;
 
     // Check if a real transaction already exists for this month with same description+value
     const alreadyExists = transactions.some(
@@ -221,7 +224,6 @@ export function useFinanceStore() {
     setAccounts(prev => [...prev, newAccount]);
 
     // Simulated data does NOT create real transactions
-    // Only creates visual connectors
     const inst = institutions.find(i => i.id === institutionId);
     
     if (inst?.type === 'broker') {

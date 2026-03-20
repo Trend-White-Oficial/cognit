@@ -1,4 +1,4 @@
-import { LayoutDashboard, PlusCircle, FileText, Target, BotMessageSquare, Landmark, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings, CalendarCheck } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Target, BotMessageSquare, Landmark, Receipt, BarChart3, Bell, Shield, TrendingUp, Scale, FileBarChart, Link2, Wallet, BookOpen, Settings, LogIn } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -22,7 +22,6 @@ export function AppSidebar() {
     { title: t('dashboard'), url: "/", icon: LayoutDashboard },
     { title: t('register'), url: "/registrar", icon: PlusCircle },
     { title: t('transactions'), url: "/lancamentos", icon: Receipt },
-    { title: t('planning'), url: "/planejamento", icon: FileText },
   ];
 
   const contabilItems = [
@@ -47,6 +46,7 @@ export function AppSidebar() {
     { title: t('assistant'), url: "/assistente", icon: BotMessageSquare },
     { title: t('content'), url: "/conteudos", icon: BookOpen },
     { title: t('settings'), url: "/configuracoes", icon: Settings },
+    { title: 'Login', url: "/login", icon: LogIn },
   ];
 
   const renderGroup = (label: string, items: typeof mainItems) => (
