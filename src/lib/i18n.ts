@@ -85,13 +85,14 @@ const translations: Record<Language, Record<string, string>> = {
     analyze: 'Analisar e criar lançamentos',
     analyzing: 'Analisando...',
     cognit_analyze_desc: 'O Cognit analisa o conteúdo e organiza automaticamente valor, data, método e categoria.',
+    cognit_tagline: 'Organização financeira com lógica profissional, sem complicação.',
     auto_reading_soon: 'Leitura automática em construção',
     month_indicator: 'Mês visualizado',
     real_data: 'Dados reais',
     simulated_data: 'Dados simulados',
     conversion_soon: 'Conversão automática em construção',
     no_bank_integration: 'Nenhuma integração bancária real está ativa no momento.',
-    feature_building: 'Funcionalidade em construção',
+    feature_building: 'Em construção',
     b3_building: 'B3 / Bovespa — Integração em construção',
     monthly_review: 'Conferir Mês',
     start_date: 'Data de Início',
@@ -106,6 +107,13 @@ const translations: Record<Language, Record<string, string>> = {
     active: 'Ativa',
     negotiating: 'Em negociação',
     paid_off: 'Quitada',
+    login: 'Entrar',
+    signup: 'Cadastrar',
+    auth_coming_soon: 'Autenticação em construção',
+    liquidity: 'Liquidez',
+    indebtedness: 'Endividamento',
+    payment_capacity: 'Capacidade de Pagamento',
+    income_commitment: 'Comprometimento de Renda',
   },
   'en-US': {
     dashboard: 'Dashboard',
@@ -172,13 +180,14 @@ const translations: Record<Language, Record<string, string>> = {
     analyze: 'Analyze and create entries',
     analyzing: 'Analyzing...',
     cognit_analyze_desc: 'Cognit analyzes the content and automatically organizes value, date, method and category.',
+    cognit_tagline: 'Professional financial organization, made simple.',
     auto_reading_soon: 'Automatic reading coming soon',
     month_indicator: 'Viewing month',
     real_data: 'Real data',
     simulated_data: 'Simulated data',
     conversion_soon: 'Automatic conversion coming soon',
     no_bank_integration: 'No real bank integration is active at the moment.',
-    feature_building: 'Feature under construction',
+    feature_building: 'Under construction',
     b3_building: 'B3 / Bovespa — Integration under construction',
     monthly_review: 'Review Month',
     start_date: 'Start Date',
@@ -193,6 +202,13 @@ const translations: Record<Language, Record<string, string>> = {
     active: 'Active',
     negotiating: 'Negotiating',
     paid_off: 'Paid Off',
+    login: 'Log In',
+    signup: 'Sign Up',
+    auth_coming_soon: 'Authentication coming soon',
+    liquidity: 'Liquidity',
+    indebtedness: 'Indebtedness',
+    payment_capacity: 'Payment Capacity',
+    income_commitment: 'Income Commitment',
   },
   'es': {
     dashboard: 'Panel',
@@ -259,13 +275,14 @@ const translations: Record<Language, Record<string, string>> = {
     analyze: 'Analizar y crear registros',
     analyzing: 'Analizando...',
     cognit_analyze_desc: 'Cognit analiza el contenido y organiza automáticamente valor, fecha, método y categoría.',
+    cognit_tagline: 'Organización financiera profesional, sin complicaciones.',
     auto_reading_soon: 'Lectura automática en construcción',
     month_indicator: 'Mes visualizado',
     real_data: 'Datos reales',
     simulated_data: 'Datos simulados',
     conversion_soon: 'Conversión automática en construcción',
     no_bank_integration: 'Ninguna integración bancaria real está activa.',
-    feature_building: 'Funcionalidad en construcción',
+    feature_building: 'En construcción',
     b3_building: 'B3 / Bovespa — Integración en construcción',
     monthly_review: 'Revisar Mes',
     start_date: 'Fecha de Inicio',
@@ -280,17 +297,22 @@ const translations: Record<Language, Record<string, string>> = {
     active: 'Activa',
     negotiating: 'Negociando',
     paid_off: 'Saldada',
+    login: 'Iniciar Sesión',
+    signup: 'Registrarse',
+    auth_coming_soon: 'Autenticación en construcción',
+    liquidity: 'Liquidez',
+    indebtedness: 'Endeudamiento',
+    payment_capacity: 'Capacidad de Pago',
+    income_commitment: 'Compromiso de Renta',
   },
 };
 
 export function useI18n() {
   const [locale, setLocale] = useState(getLocaleFromSettings);
 
-  // Re-read on storage change
   useEffect(() => {
     const handler = () => setLocale(getLocaleFromSettings());
     window.addEventListener('storage', handler);
-    // Also poll every 500ms for same-tab changes
     const interval = setInterval(() => {
       const current = getLocaleFromSettings();
       setLocale(prev => {
