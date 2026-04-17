@@ -26,20 +26,18 @@ export function AppSidebar() {
 
   const contabilItems = [
     { title: t('trial_balance'), url: "/balancete", icon: BarChart3 },
-    { title: t('balance_sheet'), url: "/balanco", icon: Scale },
-    { title: t('dre'), url: "/dre", icon: FileBarChart },
+    { title: 'Relatórios', url: "/balanco", icon: FileBarChart },
     { title: t('accounting_settings'), url: "/configuracoes-contabeis", icon: Settings },
   ];
 
   const toolItems = [
     { title: t('debts'), url: "/dividas", icon: Landmark },
-    { title: t('debts_cpf'), url: "/dividas-cpf", icon: Shield },
     { title: t('goals'), url: "/metas", icon: Target },
     { title: t('investments'), url: "/investimentos", icon: Wallet },
     { title: t('connections'), url: "/conexoes", icon: Link2 },
     { title: t('habits'), url: "/habitos", icon: TrendingUp },
     { title: t('alerts'), url: "/alertas", icon: Bell },
-    { title: t('tax'), url: "/ir", icon: Shield },
+    { title: 'Imposto de Renda', url: "/ir", icon: Shield },
   ];
 
   const otherItems = [

@@ -15,14 +15,12 @@ import { HelpCircle, CalendarCheck, Settings2 } from "lucide-react";
 import Dashboard from "./Dashboard";
 import RegisterTransaction from "./RegisterTransaction";
 import Spreadsheet from "./Spreadsheet";
-import Debts from "./Debts";
-import DebtsCPF from "./DebtsCPF";
+import DebtsUnified from "./DebtsUnified";
 import Goals from "./Goals";
 import AiAssistant from "./AiAssistant";
 import Transactions from "./Transactions";
 import TrialBalance from "./TrialBalance";
-import BalanceSheet from "./BalanceSheet";
-import DREPage from "./DRE";
+import ReportsUnified from "./ReportsUnified";
 import Habits from "./Habits";
 import Alerts from "./Alerts";
 import TaxGuide from "./TaxGuide";
@@ -85,11 +83,9 @@ const AppLayout = () => {
               <Route path="lancamentos" element={<Transactions transactions={store.transactions} onUpdate={store.updateTransaction} onDelete={store.deleteTransaction} onAdd={store.addTransaction} categoryStore={categoryStore} />} />
               <Route path="planilha" element={<Spreadsheet transactions={store.transactions} />} />
               <Route path="balancete" element={<TrialBalance transactions={store.transactions} />} />
-              <Route path="balanco" element={<BalanceSheet transactions={store.transactions} debts={store.debts} />} />
-              <Route path="dre" element={<DREPage transactions={store.transactions} />} />
+              <Route path="balanco" element={<ReportsUnified transactions={store.transactions} debts={store.debts} />} />
               <Route path="configuracoes-contabeis" element={<AccountingSettings categoryStore={categoryStore} />} />
-              <Route path="dividas" element={<Debts debts={store.debts} onAdd={store.addDebt} onUpdate={store.updateDebt} onDelete={store.deleteDebt} onUpdateStatus={store.updateDebtStatus} />} />
-              <Route path="dividas-cpf" element={<DebtsCPF debts={store.debts} onAdd={store.addDebt} onUpdate={store.updateDebt} onDelete={store.deleteDebt} onUpdateStatus={store.updateDebtStatus} onSimulateCpf={store.simulateCpfDebtQuery} />} />
+              <Route path="dividas" element={<DebtsUnified debts={store.debts} onAdd={store.addDebt} onUpdate={store.updateDebt} onDelete={store.deleteDebt} onUpdateStatus={store.updateDebtStatus} onSimulateCpf={store.simulateCpfDebtQuery} />} />
               <Route path="metas" element={<Goals goals={store.goals} onAdd={store.addGoal} onUpdate={store.updateGoal} onDelete={store.deleteGoal} onAddProgress={store.updateGoalProgress} />} />
               <Route path="investimentos" element={<Investments positions={store.investmentPositions} investmentTransactions={store.investmentTransactions} onAddPosition={store.addInvestmentPosition} onUpdatePosition={store.updateInvestmentPosition} onDeletePosition={store.deleteInvestmentPosition} />} />
               <Route path="conexoes" element={<Connections institutions={store.institutions} connectors={store.connectors} onSimulate={store.simulateInstitutionData} onClearSimulated={store.clearSimulatedData} />} />

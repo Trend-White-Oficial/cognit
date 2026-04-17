@@ -12,7 +12,7 @@ export default function Habits({ transactions }: Props) {
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const habits = useMemo(() => detectRecurringPatterns(
-    transactions.map(t => ({ date: t.date, time: t.time, description: t.description, value: t.value, method: t.method }))
+    transactions.map(t => ({ date: t.date, time: t.time, description: t.description, value: t.value, method: t.paymentMethod || t.method }))
   ), [transactions]);
 
   const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
